@@ -4,13 +4,11 @@ using System;
 
 namespace OmanSOS.Mobile
 {
-    public partial class LoginPage : ContentPage
+    public partial class RegistrationPage : ContentPage
     {
-        public LoginPage()
+        public RegistrationPage()
         {
             InitializeComponent();
         }
-
-
     }
 }

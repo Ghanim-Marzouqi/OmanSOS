@@ -43,6 +43,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Remove="RegistrationPage.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="RegistrationPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="FreshMvvm.Maui" Version="0.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Update="LoginPage.xaml.cs">
 	    <DependentUpon>LoginPage.xaml</DependentUpon>
 	  </Compile>

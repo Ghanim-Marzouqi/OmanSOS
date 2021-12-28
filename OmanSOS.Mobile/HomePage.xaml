@@ -5,7 +5,7 @@
              xmlns:dxg="clr-namespace:DevExpress.Maui.DataGrid;assembly=DevExpress.Maui.DataGrid"
              xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              xmlns:dxn="clr-namespace:DevExpress.Maui.Navigation;assembly=DevExpress.Maui.Navigation"
-             x:Class="OmanSOS.Mobile.RegistrationPage">
+             x:Class="OmanSOS.Mobile.HomePage">
     <StackLayout>
         <dxe:TextEdit Tap="TextEdit_Tap"
                       DoubleTap="TextEdit_DoubleTap"

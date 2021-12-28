@@ -6,9 +6,9 @@ using System.ComponentModel;
 
 namespace OmanSOS.Mobile
 {
-    public partial class RegistrationPage : ContentPage
+    public partial class HomePage : ContentPage
     {
-        public RegistrationPage()
+        public HomePage()
         {
             InitializeComponent();
         }

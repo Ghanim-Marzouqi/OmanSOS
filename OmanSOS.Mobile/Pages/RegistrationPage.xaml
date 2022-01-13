@@ -1,18 +1,45 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="OmanSOS.Mobile.Pages.RegistrationPage"
-             BackgroundColor="{DynamicResource SecondaryColor}">
+             BackgroundColor="{DynamicResource SecondaryColor}"
+             Title="Registration">
 
-    <ScrollView>
-        <Grid RowSpacing="25" RowDefinitions="Auto,Auto,Auto,Auto,*"
-              Padding="{OnPlatform iOS='30,60,30,30', Default='30'}">
+    <VerticalStackLayout Margin="20,35,20,25" VerticalOptions="Start" HorizontalOptions="Center">
 
-            <Label 
-                Text="Registration Page"
-                Grid.Row="0"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
-        </Grid>
-    </ScrollView>
+        <Entry x:Name="EnName"
+               Placeholder="Enter Name"
+               PlaceholderColor="LightGrey"
+               WidthRequest="250"/>
+        
+        <Entry x:Name="EnEmail"
+               Keyboard="Email"
+               Placeholder="Enter Email Address"
+               PlaceholderColor="LightGrey"
+               WidthRequest="250"/>
+
+        <Entry x:Name="EnPhone"
+               Keyboard="Telephone"
+               Placeholder="Enter Phone Number"
+               PlaceholderColor="LightGrey"
+               VerticalOptions="CenterAndExpand"/>
+
+        <Entry x:Name="EnPassword"
+               Keyboard="Text"
+               IsPassword="True"
+               Placeholder="Enter Password"
+               PlaceholderColor="LightGrey"
+               WidthRequest="250" />
+
+        <Entry x:Name="EnConfirmPassword"
+               Keyboard="Text"
+               IsPassword="True"
+               Placeholder="Confirm Password"
+               PlaceholderColor="LightGrey"
+               WidthRequest="250" />
+
+        <Button Text="SIGN UP"
+                Margin="0,20,0,10"
+                Clicked="Register"/>
+
+    </VerticalStackLayout>
 </ContentPage>

@@ -3,16 +3,16 @@ using System;
 
 namespace OmanSOS.Mobile.Pages
 {
-    public partial class RegistrationPage : ContentPage
+    public partial class RequestHelpPage : ContentPage
     {
-        public RegistrationPage()
+        public RequestHelpPage()
         {
             InitializeComponent();
         }
 
-        private void Register(object sender, EventArgs args)
+        private void SendRequest(object sender, EventArgs e)
         {
-            
+
         }
     }
 }

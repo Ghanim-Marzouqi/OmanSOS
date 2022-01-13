@@ -1,0 +1,84 @@
+/* Create New Database */
+--CREATE DATABASE OmanSOS;
+
+/* Use Database */
+USE OmanSOS;
+
+/* Create Master Tables */
+CREATE TABLE Categories (
+	Id INT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL UNIQUE,
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE Priorities (
+	Id INT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL UNIQUE,
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME
+);
+
+CREATE TABLE UserTypes (
+	Id INT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL UNIQUE,
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME
+);
+
+/* Create Transaction Tables */
+CREATE TABLE Users (
+	Id INT PRIMARY KEY,
+	UserTypeId INT NOT NULL,
+	Name VARCHAR(255) NOT NULL,
+	Email VARCHAR(255) NOT NULL UNIQUE,
+	Phone VARCHAR(20) NOT NULL,
+	PasswordHash VARBINARY(2048),
+	PasswordSalt VARBINARY(2048),
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME,
+	CONSTRAINT fk_users_usertypes FOREIGN KEY(UserTypeId) REFERENCES UserTypes(Id)
+);
+
+CREATE TABLE Requests (
+	Id INT IDENTITY(1, 1) PRIMARY KEY,
+	CategoryId INT NOT NULL,
+	PriorityId INT NOT NULL,
+	UserId INT NOT NULL,
+	Description VARCHAR(2000) NOT NULL,
+	Location VARCHAR(255) NULL,
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME,
+	CONSTRAINT fk_requests_categories FOREIGN KEY(CategoryId) REFERENCES Categories(Id),
+	CONSTRAINT fk_requests_priorities FOREIGN KEY(PriorityId) REFERENCES Priorities(Id),
+	CONSTRAINT fk_requests_users FOREIGN KEY(UserId) REFERENCES Users(Id)
+);
+
+CREATE TABLE Donations (
+	Id INT IDENTITY(1, 1) PRIMARY KEY,
+	UserId INT NOT NULL,
+	RequestId INT NULL,
+	Amount DECIMAL NOT NULL,
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME,
+	CONSTRAINT fk_donations_users FOREIGN KEY(UserId) REFERENCES Users(Id),
+	CONSTRAINT fk_donations_requests FOREIGN KEY(RequestId) REFERENCES Requests(Id)
+);

@@ -1,0 +1,24 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="OmanSOS.Mobile.Pages.ProfilePage"
+             BackgroundColor="{DynamicResource SecondaryColor}"
+             Title="My Profile">
+
+    <VerticalStackLayout Margin="20,35,20,25" VerticalOptions="Start" HorizontalOptions="Center">
+
+        <Entry x:Name="EnName"
+               Placeholder="Enter Name"
+               VerticalOptions="CenterAndExpand"/>
+        
+        <Entry x:Name="EnEmail"
+               Keyboard="Email"
+               Placeholder="Enter Email Address"
+               VerticalOptions="CenterAndExpand"/>
+
+        <Entry x:Name="EnPhone"
+               Keyboard="Telephone"
+               Placeholder="Enter Phone Number"
+               VerticalOptions="CenterAndExpand"/>
+
+    </VerticalStackLayout>
+</ContentPage>

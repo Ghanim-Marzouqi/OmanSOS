@@ -1,6 +1,5 @@
 ﻿using Microsoft.Maui;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.PlatformConfiguration.WindowsSpecific;
 using OmanSOS.Mobile.Pages;
 using Application = Microsoft.Maui.Controls.Application;
 
@@ -15,7 +14,7 @@ namespace OmanSOS.Mobile
 
         protected override Window CreateWindow(IActivationState activationState)
         {
-            return new Window(new LoginPage { Title = "Oman SOS" });
+            return new Window(new NavigationPage(new LoginPage()) { Title = "Oman SOS" });
         }
     }
 }

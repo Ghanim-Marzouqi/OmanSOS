@@ -1,5 +1,92 @@
 ﻿@inherits LayoutComponentBase
+@inject IBrowserStorageService browserStorageService
+@inject NavigationManager navigationManager
 
-<div>
-    @Body
-</div>
+<MudThemeProvider Theme="themeManager.Theme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="themeManager.AppBarElevation">
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <img src="/images/logo_white.png" alt="Logo" width="50">
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(e => DrawerToggle())"/>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudText Typo="Typo.h6" Class="ml-4">Admin Portal</MudText>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+            <MudText Typo="Typo.subtitle2">Admin Portal</MudText>
+        </MudHidden>
+        <MudSpacer/>
+        <MudMenu Direction="Direction.Left" OffsetX="true" Dense="true" Class="mt-1 ml-4">
+            <ActivatorContent>
+                <MudAvatar Image="images/avatar.jpeg"/>
+            </ActivatorContent>
+            <ChildContent>
+                <PersonCard Class="mt-n2"/>
+                <MudDivider Class="mb-2"/>
+                <MudListItem Text="Profile" Icon="@Icons.Material.Outlined.Person" Href="/profile"/>
+                <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" OnClick="Logout"/>
+            </ChildContent>
+        </MudMenu>
+    </MudAppBar>
+    <MudDrawer @bind-Open="drawerOpen" Elevation="themeManager.DrawerElevation" ClipMode="themeManager.DrawerClipMode">
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudToolBar DisableGutters="true">
+                <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@(e => DrawerToggle())" Class="ml-3"/>
+            </MudToolBar>
+        </MudHidden>
+        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    // Properties
+    private readonly ThemeManagerTheme themeManager = new();
+    private bool drawerOpen = true;
+
+    // Lifecycle Methods
+    protected override void OnInitialized()
+    {
+        themeManager.Theme = new ApplicationTheme();
+        themeManager.DrawerClipMode = DrawerClipMode.Always;
+        themeManager.FontFamily = "Open Sans";
+        themeManager.DefaultBorderRadius = 3;
+        themeManager.AppBarElevation = 4;
+        themeManager.DrawerElevation = 25;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user == null)
+        {
+            navigationManager.NavigateTo("/");
+        }
+    }
+
+    // Private Methods
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    private async void Logout()
+    {
+        // Remove user from session storage
+        await browserStorageService.RemoveItem("user");
+
+        // Redirect to login page
+        navigationManager.NavigateTo("/", replace: true);
+    }
+}

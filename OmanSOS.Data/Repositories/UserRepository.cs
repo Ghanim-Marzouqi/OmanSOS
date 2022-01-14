@@ -14,7 +14,7 @@ namespace OmanSOS.Data.Repositories
         public async Task<int> AddAsync(User entity)
         {
             entity.CreatedAt = DateTime.Now;
-            const string? sql = "INSERT INTO Users (Id, UserTypeId, Name, Email, Phone, PasswordHash, PasswordSalt, CreatedBy, CreatedAt) Values (@Id, @UserTypeId, @Name, @Email, @Phone, @PasswordHash, @PasswordSalt, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
+            const string? sql = "INSERT INTO Users (UserTypeId, NationalId, Name, Email, Phone, PasswordHash, PasswordSalt, CreatedBy, CreatedAt) Values (@UserTypeId, @NationalId, @Name, @Email, @Phone, @PasswordHash, @PasswordSalt, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
             await using var connection = GetConnection();
             connection.Open();
             var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
@@ -48,6 +48,16 @@ namespace OmanSOS.Data.Repositories
             return result == null ? new List<User>() : result.ToList();
         }
 
+        public async Task<User?> GetByEmailAsync(string? email)
+        {
+            if (email == null) return null;
+            const string? sql = "SELECT * FROM Users WHERE Email = @Email";
+            await using var connection = GetConnection();
+            connection.Open();
+            var result = await connection.QuerySingleOrDefaultAsync<User>(sql, new { Email = email });
+            return result;
+        }
+
         public async Task<User> GetByIdAsync(int id)
         {
             const string? sql = "SELECT * FROM Users WHERE Id = @Id";
@@ -57,11 +67,20 @@ namespace OmanSOS.Data.Repositories
             return result;
         }
 
+        public async Task<User?> GetByNationalIdAsync(int nationalId)
+        {
+            const string? sql = "SELECT * FROM Users WHERE NationalId = @NationalId";
+            await using var connection = GetConnection();
+            connection.Open();
+            var result = await connection.QuerySingleOrDefaultAsync<User>(sql, new { NationalId = nationalId });
+            return result;
+        }
+
         public async Task<int> UpdateAsync(int id, User entity)
         {
             entity.Id = id;
             entity.UpdatedAt = DateTime.Now;
-            const string? sql = "UPDATE Users SET Id = @Id, UserTypeId = @UserTypeId, Name = @Name, Email = @Email, Phone = @Phone, PasswordHash = @PasswordHash, PasswordSalt = @PasswordSalt, IsActive = @IsActive, UpdatedBy = @UpdatedBy, UpdatedAt = @UpdatedAt WHERE Id = @Id";
+            const string? sql = "UPDATE Users SET UserTypeId = @UserTypeId, Name = @Name, Email = @Email, Phone = @Phone, PasswordHash = @PasswordHash, PasswordSalt = @PasswordSalt, IsActive = @IsActive, UpdatedBy = @UpdatedBy, UpdatedAt = @UpdatedAt WHERE Id = @Id";
             await using var connection = GetConnection();
             connection.Open();
             var result = await connection.ExecuteAsync(sql, entity);

@@ -1,0 +1,30 @@
+﻿@inject IBrowserStorageService browserStorageService
+
+<MudCard Elevation="0" Square="true" Class="@Class" Style="@Style">
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Image="images/avatar.jpeg"/>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body2">@(user?.Name)</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+</MudCard>
+
+@code {
+    // Properties
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    UserViewModel user = new();
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        user = await browserStorageService.GetItem<UserViewModel>("user");
+    }
+
+}

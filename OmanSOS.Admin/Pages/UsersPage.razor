@@ -1,0 +1,65 @@
+﻿@page "/users"
+@layout MainLayout
+@inject IUserService userService
+
+<h3 class="mb-4">Users</h3>
+
+<MudTable Items="@users" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>Phone</MudTh>
+        <MudTh>Role</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.NationalId</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+        <MudTd DataLabel="Role">@(context.UserTypeId == 1 ? "Regular" : "Admin")</MudTd>
+        <MudTd DataLabel="Delete">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    // Properties
+    private IEnumerable<UserViewModel> users = new List<UserViewModel>();
+    private bool loading = false;
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        users = await GetUsersAsync();
+    }
+
+    // Private Methods
+    private async Task<IEnumerable<UserViewModel>> GetUsersAsync()
+    {
+        loading = true;
+
+        try
+        {
+            var response = await userService.GetAll();
+
+            if (response != null && response.StatusCode != HttpStatusCode.NotFound && response.Data != null)
+            {
+                loading = false;
+                return response.Data;
+            }
+            else
+            {
+                loading = false;
+                return new List<UserViewModel>();
+            }
+        }
+        catch(Exception e)
+        {
+            loading = false;
+            return new List<UserViewModel>();
+        }
+    }
+}

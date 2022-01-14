@@ -6,5 +6,6 @@
         public const string DefaultPassword = "DefaultPassword";
         public const string TokenSecret = "TokenSecret";
         public const string DefaultFileDirectory = "Uploads";
+        public const int DefaultUserTypeId = 1;
     }
 }

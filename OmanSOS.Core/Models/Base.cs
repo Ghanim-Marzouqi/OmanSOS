@@ -2,7 +2,6 @@
 {
     public class Base
     {
-        // Base Properties
         public int Id { get; set; }
         public bool IsActive { get; set; }
         public string? CreatedBy { get; set; }

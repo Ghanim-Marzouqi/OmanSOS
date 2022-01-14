@@ -1,0 +1,112 @@
+﻿@page "/"
+@page "/login"
+@layout AuthLayout
+@inject IAuthService authService
+@inject IBrowserStorageService browserStorageService
+@inject NavigationManager navigationManager
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    @if (alert.IsVisible)
+    {
+        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+    }
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Email" 
+        For="@(() => model.Email)" 
+        Label="Email" 
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Password" 
+        For="@(() => model.Password)" 
+        Label="Password"
+        InputType="@passwordInput" 
+        Variant="Variant.Outlined" 
+        Adornment="Adornment.End"
+        AdornmentIcon="@passwordInputIcon" 
+        OnAdornmentClick="TogglePasswordVisibility" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="ml-n1 my-3">
+        @if (isLoading)
+        {
+            <MudProgressCircular Color="Color.Tertiary" Size="Size.Small" Style="margin-left: 10px;" Indeterminate="true" />
+        }
+        else
+        {
+            @("Sign In")
+        }
+    </MudButton>
+</EditForm>
+
+@code {
+    // Properties
+    LoginModel model = new();
+    AlertModel alert = new();
+    bool isLoading;
+    bool passwordVisibility;
+    InputType passwordInput = InputType.Password;
+    string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    // Private Methods
+    private void TogglePasswordVisibility()
+    {
+        if (passwordVisibility)
+        {
+            passwordVisibility = false;
+            passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            passwordInput = InputType.Password;
+        }
+        else
+        {
+            passwordVisibility = true;
+            passwordInputIcon = Icons.Material.Filled.Visibility;
+            passwordInput = InputType.Text;
+        }
+    }
+
+    private async void OnValidSubmit(EditContext context)
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            var response = await authService.Login(model.Email, model.Password);
+
+            if (response == null)
+            {
+                isLoading = false;
+                alert.AlertType = Severity.Error;
+                alert.Message = "An error occured while logging in";
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                isLoading = false;
+                alert.AlertType = Severity.Warning;
+                alert.Message = response.Message;
+                alert.IsVisible = true;
+                StateHasChanged();
+            }
+            else
+            {
+                await browserStorageService.SetItem("user", response.Data);
+                navigationManager.NavigateTo("/dashboard");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            isLoading = false;
+            alert.AlertType = Severity.Error;
+            alert.Message = "An error occured while logging in";
+            alert.IsVisible = true;
+            StateHasChanged();
+        }
+    }
+}

@@ -2,7 +2,6 @@
 {
     public class Category : Base
     {
-        // Base Properties
-        public string Name { get; set; } = "";
+        public string Name { get; set; } = string.Empty;
     }
 }

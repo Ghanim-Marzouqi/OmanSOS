@@ -1,10 +1,18 @@
 ﻿@page "/users"
 @layout MainLayout
 @inject IUserService userService
+@inject IDialogService dialogService
+@inject IBrowserStorageService browserService
+@inject ISnackbar snackbar
+
+<PageTitle>Oman SOS | Users</PageTitle>
 
 <h3 class="mb-4">Users</h3>
 
-<MudTable Items="@users" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+<div class="d-flex justify-end my-2">
+    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Primary" OnClick="OpenAddUserDialog">Add New User</MudButton>
+</div>
+<MudTable Items="@users" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
         <MudTh>ID</MudTh>
         <MudTh>Name</MudTh>
@@ -20,7 +28,10 @@
         <MudTd DataLabel="Phone">@context.Phone</MudTd>
         <MudTd DataLabel="Role">@(context.UserTypeId == 1 ? "Regular" : "Admin")</MudTd>
         <MudTd DataLabel="Delete">
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" />
+            @if (context.Id != loggedInUser.Id)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" OnClick="() => OnDeleteUserClicked(context.Id)" />
+            }
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -28,12 +39,15 @@
 @code {
     // Properties
     private IEnumerable<UserViewModel> users = new List<UserViewModel>();
+    private UserViewModel loggedInUser = new();
     private bool loading = false;
 
     // Lifecycle Methods
     protected override async Task OnInitializedAsync()
     {
         users = await GetUsersAsync();
+        loggedInUser = await browserService.GetItem<UserViewModel>("user");
+        StateHasChanged();
     }
 
     // Private Methods
@@ -58,8 +72,41 @@
         }
         catch(Exception e)
         {
+            Console.WriteLine("UserPage.GetUsersAsync", e.Message);
             loading = false;
             return new List<UserViewModel>();
         }
+    }
+
+    private async void OnDeleteUserClicked(int userId)
+    {
+        bool? result = await dialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure to delete this user?", 
+            yesText:"Delete!", cancelText:"Cancel");
+
+        if (result == true && userId != loggedInUser.Id)
+        {
+            try
+            {
+                var response = await userService.Delete(userId);
+
+                if (response != null && response.Data == true)
+                    snackbar.Add("User deleted successfully", Severity.Success);
+                else
+                    snackbar.Add("Could not delete user", Severity.Error);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"UsersPage.OnDeleteUserClicked: {e.Message}");
+                snackbar.Add("Could not delete user", Severity.Error);
+            }
+        }
+    }
+
+    private void OpenAddUserDialog()
+    {
+		var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true, MaxWidth = MaxWidth.Medium };
+        dialogService.Show<AddUserDialog>("Add New User", options);
     }
 }

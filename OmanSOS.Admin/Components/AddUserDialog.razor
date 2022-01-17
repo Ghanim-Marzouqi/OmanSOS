@@ -1,0 +1,60 @@
+﻿<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudDialog>
+        <DialogContent>
+            <DataAnnotationsValidator />
+            @if (alert.IsVisible)
+            {
+                <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+            }
+            <MudTextField 
+                T="int" 
+                @bind-Value="@model.NationalId" 
+                For="@(() => model.NationalId)" 
+                Label="National ID" 
+                Class="my-6" 
+                Variant="Variant.Outlined" />
+            <MudTextField 
+                T="string" 
+                @bind-Value="@model.Name" 
+                For="@(() => model.Name)" 
+                Label="Name" 
+                Class="my-6" 
+                Variant="Variant.Outlined" />
+            <MudTextField 
+                T="string" 
+                @bind-Value="@model.Email" 
+                For="@(() => model.Email)" 
+                Label="Email" 
+                Class="my-6" 
+                Variant="Variant.Outlined" />
+            <MudTextField 
+                T="string" 
+                @bind-Value="@model.Phone" 
+                For="@(() => model.Phone)" 
+                Label="Phone" 
+                Class="my-6" 
+                Variant="Variant.Outlined" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    // Properties
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+    private AddUserModel model = new();
+    private AlertModel alert = new();
+
+    // Lifecycle Methods
+
+    // Private Methods
+    void Cancel() => MudDialog.Cancel();
+
+    private void OnValidSubmit()
+    {
+        
+    }
+}

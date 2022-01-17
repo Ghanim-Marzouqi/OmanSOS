@@ -1,11 +1,6 @@
 ﻿@page "/"
-@page "/login"
 @layout AuthLayout
-@inject IAuthService authService
-@inject IBrowserStorageService browserStorageService
 @inject NavigationManager navigationManager
-
-<PageTitle>Oman SOS | Sign In</PageTitle>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
@@ -13,11 +8,15 @@
     {
         <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
     }
+    <div class="d-flex flex-row justify-center mud-width-full">
+        <img src="/images/logo.png" alt="Logo" width="250">
+    </div>
     <MudTextField 
         T="string" 
         @bind-Value="@model.Email" 
         For="@(() => model.Email)" 
-        Label="Email" 
+        Label="Email"
+        Margin="Margin.Dense"
         Class="my-6" 
         Variant="Variant.Outlined" />
     <MudTextField 
@@ -26,11 +25,13 @@
         For="@(() => model.Password)" 
         Label="Password"
         InputType="@passwordInput" 
+        Margin="Margin.Dense"
         Variant="Variant.Outlined" 
         Adornment="Adornment.End"
         AdornmentIcon="@passwordInputIcon" 
         OnAdornmentClick="TogglePasswordVisibility" />
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="ml-n1 my-3">
+    <MudCheckBox T="bool" @bind-Checked="@rememberMe" Label="Remember Me" Color="Color.Primary" Class="ml-n3" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3">
         @if (isLoading)
         {
             <MudProgressCircular Color="Color.Tertiary" Size="Size.Small" Style="margin-left: 10px;" Indeterminate="true" />
@@ -40,12 +41,18 @@
             @("Sign In")
         }
     </MudButton>
+    <div Class="d-flex justify-space-between align-center">
+        <MudLink Href="/forgot-password">Forgot password?</MudLink>
+        <MudLink Href="/register">Sign Up</MudLink>
+    </div>
 </EditForm>
 
-@code {
+@code 
+{
     // Properties
     LoginModel model = new();
     AlertModel alert = new();
+    bool rememberMe;
     bool isLoading;
     bool passwordVisibility;
     InputType passwordInput = InputType.Password;
@@ -68,47 +75,8 @@
         }
     }
 
-    private async void OnValidSubmit(EditContext context)
+    private void OnValidSubmit()
     {
-        try
-        {
-            isLoading = true;
-            StateHasChanged();
-
-            var response = await authService.Login(model.Email, model.Password);
-
-            if (response == null)
-            {
-                isLoading = false;
-                alert.AlertType = Severity.Error;
-                alert.Message = "An error occured while logging in";
-                alert.IsVisible = true;
-                StateHasChanged();
-                return;
-            }
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                isLoading = false;
-                alert.AlertType = Severity.Warning;
-                alert.Message = response.Message;
-                alert.IsVisible = true;
-                StateHasChanged();
-            }
-            else
-            {
-                await browserStorageService.SetItem("user", response.Data);
-                navigationManager.NavigateTo("/dashboard");
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            isLoading = false;
-            alert.AlertType = Severity.Error;
-            alert.Message = "An error occured while logging in";
-            alert.IsVisible = true;
-            StateHasChanged();
-        }
+        navigationManager.NavigateTo("/home");
     }
 }

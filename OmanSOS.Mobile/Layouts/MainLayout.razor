@@ -1,0 +1,66 @@
+﻿@inherits LayoutComponentBase
+@inject IBrowserStorageService browserStorageService
+@inject NavigationManager navigationManager
+
+<MudThemeProvider Theme="themeManager.Theme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="themeManager.AppBarElevation">
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(e => DrawerToggle())"/>
+        </MudHidden>
+    </MudAppBar>
+    <MudDrawer @bind-Open="drawerOpen" Elevation="themeManager.DrawerElevation" ClipMode="themeManager.DrawerClipMode">
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    // Properties
+    private readonly ThemeManagerTheme themeManager = new();
+    private bool drawerOpen = true;
+
+    // Lifecycle Methods
+    protected override void OnInitialized()
+    {
+        themeManager.Theme = new ApplicationTheme();
+        themeManager.DrawerClipMode = DrawerClipMode.Always;
+        themeManager.FontFamily = "Open Sans";
+        themeManager.DefaultBorderRadius = 3;
+        themeManager.AppBarElevation = 4;
+        themeManager.DrawerElevation = 25;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        // if (user == null)
+        // {
+        //     navigationManager.NavigateTo("/");
+        // }
+    }
+
+    // Private Methods
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    private async void Logout()
+    {
+        // Remove user from session storage
+        await browserStorageService.RemoveItem("user");
+
+        // Redirect to login page
+        navigationManager.NavigateTo("/", replace: true);
+    }
+}

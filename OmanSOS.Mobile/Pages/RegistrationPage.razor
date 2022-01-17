@@ -1,0 +1,105 @@
+﻿@page "/register"
+@layout AuthLayout
+@inject NavigationManager navigationManager
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    @if (alert.IsVisible)
+    {
+        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+    }
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.NationalId" 
+        For="@(() => model.NationalId)" 
+        Label="National ID"
+        Margin="Margin.Dense"
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Name" 
+        For="@(() => model.Name)" 
+        Label="Full Name"
+        Margin="Margin.Dense"
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Email" 
+        For="@(() => model.Email)" 
+        Label="Email Address"
+        Margin="Margin.Dense"
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Password" 
+        For="@(() => model.Password)" 
+        Label="Password"
+        InputType="@passwordInput" 
+        Margin="Margin.Dense"
+        Class="my-6"
+        Variant="Variant.Outlined" 
+        Adornment="Adornment.End"
+        AdornmentIcon="@passwordInputIcon" 
+        OnAdornmentClick="TogglePasswordVisibility" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.ConfirmPassword" 
+        For="@(() => model.ConfirmPassword)" 
+        Label="Confirm Password"
+        InputType="@passwordInput" 
+        Margin="Margin.Dense"
+        Variant="Variant.Outlined" 
+        Class="my-6"
+        Adornment="Adornment.End"
+        AdornmentIcon="@passwordInputIcon" 
+        OnAdornmentClick="TogglePasswordVisibility" />
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3">
+        @if (isLoading)
+        {
+            <MudProgressCircular Color="Color.Tertiary" Size="Size.Small" Style="margin-left: 10px;" Indeterminate="true" />
+        }
+        else
+        {
+            @("Sign Up")
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="() => navigationManager.NavigateTo(navigationManager.BaseUri)">
+        Go Back
+    </MudButton>
+</EditForm>
+
+@code 
+{
+    // Properties
+    RegistrationModel model = new();
+    AlertModel alert = new();
+    bool isLoading;
+    bool passwordVisibility;
+    InputType passwordInput = InputType.Password;
+    string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    // Private Methods
+    private void TogglePasswordVisibility()
+    {
+        if (passwordVisibility)
+        {
+            passwordVisibility = false;
+            passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            passwordInput = InputType.Password;
+        }
+        else
+        {
+            passwordVisibility = true;
+            passwordInputIcon = Icons.Material.Filled.Visibility;
+            passwordInput = InputType.Text;
+        }
+    }
+
+    private void OnValidSubmit()
+    {
+        
+    }
+}

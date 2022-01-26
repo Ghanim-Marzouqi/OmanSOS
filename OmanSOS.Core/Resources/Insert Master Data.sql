@@ -14,4 +14,4 @@ INSERT INTO UserTypes (Id, Name) VALUES (1, 'Regular');
 INSERT INTO UserTypes (Id, Name) VALUES (2, 'Administrator');
 
 /* Insert Adminstrator */
-INSERT INTO Users (Id, UserTypeId, Name, Email, Phone) VALUES (13897117, 2, 'Ghanim', 'optimist_gm@hotmail.com', '96132329');
+INSERT INTO Users (NationalId, UserTypeId, Name, Email, Phone) VALUES (22770461, 2, 'Muzna', '16178@email.muscatcollege.edu.om', '91341451');

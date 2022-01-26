@@ -16,7 +16,7 @@ namespace OmanSOS.Admin.Services
         public async Task<AuthenticationHeaderValue> GetAuthorizationHeader()
         {
             var user = await _browserStorage.GetItem<UserViewModel>("user");
-            return new AuthenticationHeaderValue(AuthorizationType.Bearer, user.AccessToken);
+            return new AuthenticationHeaderValue(AuthorizationType.Bearer, user?.AccessToken);
         }
     }
 }

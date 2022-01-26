@@ -6,7 +6,7 @@
             <MudAvatar Image="images/avatar.jpeg"/>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.body2">@(user?.Name)</MudText>
+            <MudText Typo="Typo.body2">@(loggedInUser?.Name)</MudText>
         </CardHeaderContent>
     </MudCardHeader>
 </MudCard>
@@ -19,12 +19,14 @@
     [Parameter]
     public string Style { get; set; } = string.Empty;
 
-    UserViewModel user = new();
+    UserViewModel loggedInUser = new();
 
     // Lifecycle Methods
     protected override async Task OnInitializedAsync()
     {
-        user = await browserStorageService.GetItem<UserViewModel>("user");
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user != null) loggedInUser = user;
     }
 
 }

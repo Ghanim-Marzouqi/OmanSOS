@@ -18,5 +18,8 @@ namespace OmanSOS.Admin.Models
         [StringLength(8, ErrorMessage = "Phone number must be 8 digits")]
         [RegularExpression(@"^[79]\d{7}$", ErrorMessage = "Phone number is invalid")]
         public string Phone { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please select user type")]
+        public int UserTypeId { get; set; } = 1;
     }
 }

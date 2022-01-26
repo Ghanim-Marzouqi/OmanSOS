@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OmanSOS.Core;
+using OmanSOS.Core.Models;
 using OmanSOS.Core.ViewModels;
 using System.Net;
 
@@ -19,6 +20,55 @@ namespace OmanSOS.Api.Controllers
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+        }
+
+        [HttpPost("Add")]
+        public async Task<IActionResult> Add(UserViewModel userViewModel)
+        {
+            try
+            {
+                if (userViewModel == null)
+                {
+                    return Ok(new ResponseViewModel<bool>
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Data sent incomplete"
+                    });
+                }
+
+                var user = _mapper.Map<User>(userViewModel);
+                var insertedId = await _unitOfWork.Users.AddAsync(user);
+
+                if (insertedId != 0)
+                {
+                    return Ok(new ResponseViewModel<bool>
+                    {
+                        StatusCode = HttpStatusCode.Created,
+                        Message = "A new user has been added successfully",
+                        Data = true
+                    });
+                }
+                else
+                {
+                    return Ok(new ResponseViewModel<bool>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "Cannot add the user",
+                        Data = false
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "An error occured while adding a new user",
+                    Data = false,
+                    ErrorMessage = e.Message,
+                    ErrorStackTrace = e.StackTrace
+                });
+            }
         }
 
         [HttpGet("GetAll")]

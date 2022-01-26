@@ -2,7 +2,7 @@
 @layout MainLayout
 @inject IUserService userService
 @inject IDialogService dialogService
-@inject IBrowserStorageService browserService
+@inject IBrowserStorageService browserStorageService
 @inject ISnackbar snackbar
 
 <PageTitle>Oman SOS | Users</PageTitle>
@@ -46,8 +46,13 @@
     protected override async Task OnInitializedAsync()
     {
         users = await GetUsersAsync();
-        loggedInUser = await browserService.GetItem<UserViewModel>("user");
-        StateHasChanged();
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user != null)
+        {
+            loggedInUser = user;
+            StateHasChanged();
+        }
     }
 
     // Private Methods
@@ -92,7 +97,11 @@
                 var response = await userService.Delete(userId);
 
                 if (response != null && response.Data == true)
+                {
                     snackbar.Add("User deleted successfully", Severity.Success);
+                    users = await GetUsersAsync();
+                    StateHasChanged();
+                }
                 else
                     snackbar.Add("Could not delete user", Severity.Error);
             }
@@ -104,9 +113,16 @@
         }
     }
 
-    private void OpenAddUserDialog()
+    private async void OpenAddUserDialog()
     {
-		var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true, MaxWidth = MaxWidth.Medium };
-        dialogService.Show<AddUserDialog>("Add New User", options);
+        var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true, MaxWidth = MaxWidth.Medium };
+        var dialog = dialogService.Show<AddUserDialog>("Add New User", options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            users = await GetUsersAsync();
+            StateHasChanged();
+        }
     }
 }

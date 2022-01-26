@@ -1,4 +1,7 @@
-﻿<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+﻿@inject IUserService userService
+@inject ISnackbar snackbar
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <MudDialog>
         <DialogContent>
             <DataAnnotationsValidator />
@@ -34,6 +37,10 @@
                 Label="Phone" 
                 Class="my-6" 
                 Variant="Variant.Outlined" />
+            <MudSelect T="int" @bind-Value="model.UserTypeId" Label="User Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem T="int" Value="1">Regular User</MudSelectItem>
+                <MudSelectItem T="int" Value="2">Administrator</MudSelectItem>
+            </MudSelect>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -53,8 +60,40 @@
     // Private Methods
     void Cancel() => MudDialog.Cancel();
 
-    private void OnValidSubmit()
+    private async Task OnValidSubmit()
     {
-        
+        try
+        {
+            var response = await userService.Add(new UserViewModel
+                {
+                    NationalId = model.NationalId,
+                    Name = model.Name,
+                    Email = model.Email,
+                    Phone = model.Phone,
+                    UserTypeId = model.UserTypeId
+                });
+
+            if (response == null)
+            {
+                snackbar.Add("Response Unknown", Severity.Error);
+                return;
+            } 
+            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
+            {
+                snackbar.Add(response?.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error: {e.Message}");
+            snackbar.Add($"Error: {e.Message}", Severity.Error);
+            return;
+        }
     }
 }

@@ -6,9 +6,12 @@ namespace OmanSOS.Admin.Services
 
     public interface IUserService
     {
+        Task<ResponseViewModel<bool>?> Add(UserViewModel user);
+
         Task<ResponseViewModel<IEnumerable<UserViewModel>>?> GetAll();
 
         Task<ResponseViewModel<bool>?> Delete(int userId);
+
     }
 
     public class UserService : BaseService, IUserService
@@ -20,6 +23,13 @@ namespace OmanSOS.Admin.Services
         {
             _http = http;
             _baseUrl = $"{configuration["ApiUrl"]}/users";
+        }
+
+        public async Task<ResponseViewModel<bool>?> Add(UserViewModel user)
+        {
+            _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
+            var response = await _http.PostAsJsonAsync($"{_baseUrl}/Add", user);
+            return await response.Content.ReadFromJsonAsync<ResponseViewModel<bool>?>();
         }
 
         public async Task<ResponseViewModel<IEnumerable<UserViewModel>>?> GetAll()

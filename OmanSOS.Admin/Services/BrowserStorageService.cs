@@ -6,7 +6,7 @@ namespace OmanSOS.Admin.Services
 {
     public interface IBrowserStorageService
     {
-        Task<T> GetItem<T>(string key);
+        Task<T?> GetItem<T>(string key);
         Task SetItem<T>(string key, T value);
         Task RemoveItem(string key);
     }
@@ -22,7 +22,7 @@ namespace OmanSOS.Admin.Services
             _browserStorage = browserStorage;
         }
 
-        public async Task<T> GetItem<T>(string key)
+        public async Task<T?> GetItem<T>(string key)
         {
             var json = await _jsRuntime.InvokeAsync<string>($"{_browserStorage}.getItem", key);
             return json == null ? default : JsonSerializer.Deserialize<T>(json);

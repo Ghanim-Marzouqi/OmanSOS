@@ -1,8 +1,7 @@
 ﻿using OmanSOS.Core.Models;
 
-namespace OmanSOS.Core.Interfaces
+namespace OmanSOS.Core.Interfaces;
+
+public interface IDonationRepository : IBaseRepository<Donation>
 {
-    public interface IDonationRepository : IBaseRepository<Donation>
-    {
-    }
 }

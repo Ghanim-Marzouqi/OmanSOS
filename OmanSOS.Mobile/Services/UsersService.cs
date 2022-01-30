@@ -4,19 +4,19 @@ using System.Net.Http.Json;
 
 namespace OmanSOS.Mobile.Services;
 
-public interface IUserService
+public interface IUsersService
 {
     Task<ResponseViewModel<IEnumerable<UserViewModel>>?> GetAll();
 
     Task<ResponseViewModel<bool>?> Delete(int userId);
 }
 
-public class UserService : BaseService, IUserService
+public class UsersService : BaseService, IUsersService
 {
     private readonly HttpClient _http;
     private readonly string _baseUrl;
 
-    public UserService(IBrowserStorageService browserStorage, IConfiguration configuration, HttpClient http) : base(browserStorage)
+    public UsersService(IBrowserStorageService browserStorage, IConfiguration configuration, HttpClient http) : base(browserStorage)
     {
         _http = http;
         _baseUrl = $"{configuration["ApiUrl"]}/users";

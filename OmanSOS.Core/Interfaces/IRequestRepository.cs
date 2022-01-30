@@ -1,8 +1,10 @@
 ﻿using OmanSOS.Core.Models;
 
-namespace OmanSOS.Core.Interfaces
+namespace OmanSOS.Core.Interfaces;
+
+public interface IRequestRepository : IBaseRepository<Request>
 {
-    public interface IRequestRepository : IBaseRepository<Request>
-    {
-    }
+    Task<Category> GetCategoryByRequestIdAsync(int requestId);
+    Task<Priority> GetPriorityByRequestIdAsync(int requestId);
+    Task<User> GetRequestorByRequestIdAsync(int requestId);
 }

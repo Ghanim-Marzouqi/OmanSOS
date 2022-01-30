@@ -1,7 +1,6 @@
-﻿namespace OmanSOS.Core.Models
+﻿namespace OmanSOS.Core.Models;
+
+public class Priority : Base
 {
-    public class Priority : Base
-    {
-        public string Name { get; set; } = string.Empty;
-    }
+    public string Name { get; set; } = string.Empty;
 }

@@ -1,6 +1,5 @@
-﻿namespace OmanSOS.Core.Models
+﻿namespace OmanSOS.Core.Models;
+
+public class UserType : Base
 {
-    public class UserType : Base
-    {
-    }
 }

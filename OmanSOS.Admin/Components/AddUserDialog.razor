@@ -1,4 +1,4 @@
-﻿@inject IUserService userService
+﻿@inject IUsersService usersService
 @inject ISnackbar snackbar
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
@@ -64,7 +64,7 @@
     {
         try
         {
-            var response = await userService.Add(new UserViewModel
+            var response = await usersService.Add(new UserViewModel
                 {
                     NationalId = model.NationalId,
                     Name = model.Name,

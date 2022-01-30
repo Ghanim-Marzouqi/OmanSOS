@@ -2,14 +2,16 @@
 using OmanSOS.Core.Models;
 using OmanSOS.Core.ViewModels;
 
-namespace OmanSOS.Api.Services
+namespace OmanSOS.Api.Services;
+
+public class MappingService : Profile
 {
-    public class MappingService : Profile
+    public MappingService()
     {
-        public MappingService()
-        {
-            CreateMap<User, UserViewModel>().ReverseMap();
-            CreateMap<UserType, UserTypeViewModel>().ReverseMap();
-        }
+        CreateMap<User, UserViewModel>().ReverseMap();
+        CreateMap<UserType, UserTypeViewModel>().ReverseMap();
+        CreateMap<Request, RequestViewModel>().ReverseMap();
+        CreateMap<Category, CategoryViewModel>().ReverseMap();
+        CreateMap<Priority, PriorityViewModel>().ReverseMap();
     }
 }

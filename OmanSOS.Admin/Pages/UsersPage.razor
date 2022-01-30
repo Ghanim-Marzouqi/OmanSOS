@@ -1,6 +1,6 @@
 ﻿@page "/users"
 @layout MainLayout
-@inject IUserService userService
+@inject IUsersService usersService
 @inject IDialogService dialogService
 @inject IBrowserStorageService browserStorageService
 @inject ISnackbar snackbar
@@ -62,7 +62,7 @@
 
         try
         {
-            var response = await userService.GetAll();
+            var response = await usersService.GetAll();
 
             if (response != null && response.StatusCode != HttpStatusCode.NotFound && response.Data != null)
             {
@@ -94,7 +94,7 @@
         {
             try
             {
-                var response = await userService.Delete(userId);
+                var response = await usersService.Delete(userId);
 
                 if (response != null && response.Data == true)
                 {

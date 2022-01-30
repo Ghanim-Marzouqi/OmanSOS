@@ -1,10 +1,72 @@
 ﻿@page "/help-requests"
 @layout MainLayout
+@inject IRequestsService requestsService
+@inject IDialogService dialogService
+@inject IBrowserStorageService browserStorageService
+@inject ISnackbar snackbar
 
 <PageTitle>Oman SOS | Help Requests</PageTitle>
 
 <h3 class="mb-4">Help Requests</h3>
 
-@code {
+<MudTable Items="@requests" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Requeestor</MudTh>
+        <MudTh>Category</MudTh>
+        <MudTh>Priority</MudTh>
+        <MudTh>Location</MudTh>
+        <MudTh>Request Date</MudTh>
+        <MudTh>View</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Requeestor">@context.User?.Name</MudTd>
+        <MudTd DataLabel="Category">@context.Category?.Name</MudTd>
+        <MudTd DataLabel="Priority">@context.Priority?.Name</MudTd>
+        <MudTd DataLabel="Location">@context.Location</MudTd>
+        <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
+        <MudTd DataLabel="Request Date">
+            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" aria-label="view"/>
+        </MudTd>
+        <MudTd DataLabel="Request Date">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" aria-label="delete"/>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
+@code {
+    // Properties
+    private IEnumerable<RequestViewModel> requests = new List<RequestViewModel>();
+    private bool loading = false;
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRequestsAsync();
+    }
+
+    // Private Methods
+    private async Task GetRequestsAsync()
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await requestsService.GetAll();
+
+            if (response != null && response.StatusCode != HttpStatusCode.NotFound && response.Data != null)
+            {
+                loading = false;
+                StateHasChanged();
+                requests = response.Data;
+            }
+        }
+        catch(Exception e)
+        {
+            loading = false;
+            StateHasChanged();
+            Console.WriteLine("UserPage.GetUsersAsync", e.Message);
+        }
+    }
 }

@@ -1,8 +1,7 @@
 ﻿using OmanSOS.Core.Models;
 
-namespace OmanSOS.Core.Interfaces
+namespace OmanSOS.Core.Interfaces;
+
+public interface IPriorityRepository : IBaseRepository<Priority>
 {
-    public interface IPriorityRepository : IBaseRepository<Priority>
-    {
-    }
 }

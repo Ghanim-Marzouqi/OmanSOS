@@ -6,130 +6,129 @@ using OmanSOS.Core.Models;
 using OmanSOS.Core.ViewModels;
 using System.Net;
 
-namespace OmanSOS.Api.Controllers
+namespace OmanSOS.Api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class UsersController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class UsersController : ControllerBase
+    private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UsersController(IMapper mapper, IUnitOfWork unitOfWork)
     {
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
+        _mapper = mapper;
+        _unitOfWork = unitOfWork;
+    }
 
-        public UsersController(IMapper mapper, IUnitOfWork unitOfWork)
+    [HttpPost("Add")]
+    public async Task<IActionResult> Add(UserViewModel userViewModel)
+    {
+        try
         {
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
-        }
-
-        [HttpPost("Add")]
-        public async Task<IActionResult> Add(UserViewModel userViewModel)
-        {
-            try
+            if (userViewModel == null)
             {
-                if (userViewModel == null)
+                return Ok(new ResponseViewModel<bool>
                 {
-                    return Ok(new ResponseViewModel<bool>
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Message = "Data sent incomplete"
-                    });
-                }
-
-                var user = _mapper.Map<User>(userViewModel);
-                var insertedId = await _unitOfWork.Users.AddAsync(user);
-
-                if (insertedId != 0)
-                {
-                    return Ok(new ResponseViewModel<bool>
-                    {
-                        StatusCode = HttpStatusCode.Created,
-                        Message = "A new user has been added successfully",
-                        Data = true
-                    });
-                }
-                else
-                {
-                    return Ok(new ResponseViewModel<bool>
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Message = "Cannot add the user",
-                        Data = false
-                    });
-                }
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Data sent incomplete"
+                });
             }
-            catch (Exception e)
+
+            var user = _mapper.Map<User>(userViewModel);
+            var insertedId = await _unitOfWork.Users.AddAsync(user);
+
+            if (insertedId != 0)
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.Created,
+                    Message = "A new user has been added successfully",
+                    Data = true
+                });
+            }
+            else
             {
                 return Ok(new ResponseViewModel<bool>
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    Message = "An error occured while adding a new user",
-                    Data = false,
-                    ErrorMessage = e.Message,
-                    ErrorStackTrace = e.StackTrace
+                    Message = "Cannot add the user",
+                    Data = false
                 });
             }
         }
-
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        catch (Exception e)
         {
-            try
+            return Ok(new ResponseViewModel<bool>
             {
-                var users = await _unitOfWork.Users.GetAllAsync();
-
-                return Ok(new ResponseViewModel<IEnumerable<UserViewModel>>
-                {
-                    Data = _mapper.Map<IEnumerable<UserViewModel>>(users)
-                });
-            }
-            catch (Exception e)
-            {
-                return Ok(new ResponseViewModel<IEnumerable<UserViewModel>>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "An error occured while getting list of users",
-                    ErrorMessage = e.Message,
-                    ErrorStackTrace = e.StackTrace
-                });
-            }
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occured while adding a new user",
+                Data = false,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
         }
+    }
 
-        [HttpDelete("Delete/{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+    [HttpGet("GetAll")]
+    public async Task<IActionResult> GetAll()
+    {
+        try
         {
-            try
-            {
-                var isDeleted = await _unitOfWork.Users.DeleteAsync(id);
+            var users = await _unitOfWork.Users.GetAllAsync();
 
-                if (isDeleted > 0)
-                {
-                    return Ok(new ResponseViewModel<bool>
-                    {
-                        Message = "User deleted successfully",
-                        Data = true
-                    });
-                }
-                else
-                {
-                    return Ok(new ResponseViewModel<bool>
-                    {
-                        Message = "User not deleted",
-                        Data = false
-                    });
-                }
-            }
-            catch (Exception e)
+            return Ok(new ResponseViewModel<IEnumerable<UserViewModel>>
+            {
+                Data = _mapper.Map<IEnumerable<UserViewModel>>(users)
+            });
+        }
+        catch (Exception e)
+        {
+            return Ok(new ResponseViewModel<IEnumerable<UserViewModel>>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occured while getting list of users",
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
+
+    [HttpDelete("Delete/{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var isDeleted = await _unitOfWork.Users.DeleteAsync(id);
+
+            if (isDeleted > 0)
             {
                 return Ok(new ResponseViewModel<bool>
                 {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "An error occured while deleting user",
-                    Data = false,
-                    ErrorMessage = e.Message,
-                    ErrorStackTrace = e.StackTrace
+                    Message = "User deleted successfully",
+                    Data = true
                 });
             }
+            else
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    Message = "User not deleted",
+                    Data = false
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            return Ok(new ResponseViewModel<bool>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occured while deleting user",
+                Data = false,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
         }
     }
 }

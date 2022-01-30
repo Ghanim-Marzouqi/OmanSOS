@@ -1,8 +1,7 @@
 ﻿using OmanSOS.Core.Models;
 
-namespace OmanSOS.Core.Interfaces
+namespace OmanSOS.Core.Interfaces;
+
+public interface ICategoryRepository : IBaseRepository<Category>
 {
-    public interface ICategoryRepository : IBaseRepository<Category>
-    {
-    }
 }

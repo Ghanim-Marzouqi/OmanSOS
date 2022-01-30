@@ -1,7 +1,6 @@
-﻿namespace OmanSOS.Core.Models
+﻿namespace OmanSOS.Core.Models;
+
+public class Category : Base
 {
-    public class Category : Base
-    {
-        public string Name { get; set; } = string.Empty;
-    }
+    public string Name { get; set; } = string.Empty;
 }

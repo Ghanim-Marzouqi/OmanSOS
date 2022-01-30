@@ -23,7 +23,7 @@ namespace OmanSOS.Mobile
             builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
-            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddMudServices(config =>
             {
                 config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;

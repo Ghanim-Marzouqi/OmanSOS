@@ -1,14 +1,13 @@
 ﻿using OmanSOS.Core.Interfaces;
 
-namespace OmanSOS.Core
+namespace OmanSOS.Core;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        ICategoryRepository Categories { get; }
-        IDonationRepository Donations { get; }
-        IPriorityRepository Priorities { get; }
-        IRequestRepository Requests { get; }
-        IUserRepository Users { get; }
-        IUserTypeRepository UserTypes { get; }
-    }
+    ICategoryRepository Categories { get; }
+    IDonationRepository Donations { get; }
+    IPriorityRepository Priorities { get; }
+    IRequestRepository Requests { get; }
+    IUserRepository Users { get; }
+    IUserTypeRepository UserTypes { get; }
 }

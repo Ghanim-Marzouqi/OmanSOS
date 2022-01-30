@@ -13,5 +13,6 @@ public class MappingService : Profile
         CreateMap<Request, RequestViewModel>().ReverseMap();
         CreateMap<Category, CategoryViewModel>().ReverseMap();
         CreateMap<Priority, PriorityViewModel>().ReverseMap();
+        CreateMap<Donation, DonationViewModel>().ReverseMap();
     }
 }

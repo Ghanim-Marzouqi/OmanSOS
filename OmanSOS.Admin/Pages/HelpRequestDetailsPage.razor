@@ -1,0 +1,116 @@
+﻿@page "/help-request-details/{RequestId:int}"
+@layout MainLayout
+@inject IRequestsService requestsService
+@inject ISnackbar snackbar
+@inject NavigationManager navigationManager
+
+<PageTitle>Oman SOS | Request Details</PageTitle>
+
+<MudBreadcrumbs Items="links" Class="pl-0"></MudBreadcrumbs>
+
+<h3 class="my-4">Request Details</h3>
+
+<MudPaper Class="pt-2 pl-2">
+    <MudText Typo="Typo.subtitle1" Color="Color.Info"><strong>Requestor Details</strong></MudText>
+    <MudList>
+        <MudListItem Text="@(requestDetails.User?.Name)" Icon="@Icons.Material.Filled.Person" />
+        <MudListItem Text="@(requestDetails.User?.Email)" Icon="@Icons.Material.Filled.Email" />
+        <MudListItem Text="@(requestDetails.User?.Phone)" Icon="@Icons.Material.Filled.Phone" />
+        <MudListItem Text="@(requestDetails.User?.Location)" Icon="@Icons.Material.Filled.PinDrop" />
+    </MudList>
+</MudPaper>
+
+<MudPaper Class="mt-8 pt-2 pl-2">
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" sm="6" Class="pa-4">
+            <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Category: <span style="color: black">@requestDetails.Category?.Name</span></strong></MudText>
+            <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Priority: <span style="@(GetPriorityStyle(requestDetails.Priority?.Id))">@requestDetails.Priority?.Name</span></strong></MudText>
+            <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Location: <span style="color: black">@requestDetails.Location</span></strong></MudText>
+            <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Description:</strong></MudText>
+            <MudText Typo="Typo.subtitle2">@requestDetails.Description</MudText>
+        </MudItem>
+        <MudItem xs="12" sm="6" Class="d-flex justify-end pr-8">
+            <img src="images/placeholder.jpg" alt="Request" width="300" height="300" />
+        </MudItem>
+</MudGrid>
+</MudPaper>
+
+@code {
+    // Properties
+    [Parameter] public int? RequestId { get; set; }
+    private RequestViewModel requestDetails = new RequestViewModel();
+    private List<BreadcrumbItem> links = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Help Requests", href: "/help-requests"),
+        new BreadcrumbItem("Request Details", href: null, disabled: true)
+    };
+
+    // Lifecycle Methods
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<int>(nameof(RequestId), out var value))
+        {
+            if (value == 0)
+            {
+                snackbar.Add("Invalid Request Id", Severity.Error);
+                navigationManager.NavigateTo("/help-requests");
+            }
+        }
+        else
+        {
+            RequestId = value;
+        }
+
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRequestByIdAsync();
+    }
+
+    // Private Methods
+    private async Task GetRequestByIdAsync()
+    {
+        if (!RequestId.HasValue)
+            return;
+
+        try
+        {
+            var response = await requestsService.GetById(RequestId.Value);
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request", Severity.Error);
+            }
+            else if (response.StatusCode == HttpStatusCode.OK && response.Data != null)
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                requestDetails = response.Data;
+            } 
+            else
+            {
+                snackbar.Add(response.Message, Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            snackbar.Add("An error occurred while sending request", Severity.Error);
+        }
+    }
+
+    private string GetPriorityStyle(int? priorityId)
+    {
+        switch(priorityId)
+        {
+            case 1:
+                return "color: green";
+            case 2:
+                return "color: orange";
+            case 3:
+                return "color: red";
+            default:
+                return "color: black";
+        }
+    }
+}

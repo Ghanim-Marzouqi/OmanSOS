@@ -8,6 +8,7 @@ public class UserViewModel : BaseViewModel
     public string? Name { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
+    public string? Location { get; set; }
     public string? Password { get; set; }
     public byte[]? PasswordHash { get; set; } = null;
     public byte[]? PasswordSalt { get; set; } = null;

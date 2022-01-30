@@ -1,10 +1,106 @@
 ﻿@page "/donations"
 @layout MainLayout
+@inject IDonationsService donationsService
+@inject IDialogService dialogService
+@inject IBrowserStorageService browserStorageService
+@inject ISnackbar snackbar
 
 <PageTitle>Oman SOS | Donations</PageTitle>
 
 <h3 class="mb-4">Donations</h3>
 
-@code {
+<MudTable Items="@donations" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Donor</MudTh>
+        <MudTh>Amount</MudTh>
+        <MudTh>Request</MudTh>
+        <MudTh>Donation Date</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Donor">@context.User?.Name</MudTd>
+        <MudTd DataLabel="Amount">OMR @context.Amount</MudTd>
+        <MudTd DataLabel="Request">@(GetRelatedRequestDescription(context.Request))</MudTd>
+        <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
+        <MudTd DataLabel="Delete">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" aria-label="delete" OnClick="() => OnDeleteDonationClicked(context.Id)"/>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
+@code {
+    // Properties
+    private IEnumerable<DonationViewModel> donations = new List<DonationViewModel>();
+    private bool loading = false;
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDonationsAsync();
+    }
+
+    // Private Methods
+    private async Task GetDonationsAsync()
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await donationsService.GetAll();
+
+            if (response != null && response.StatusCode != HttpStatusCode.NotFound && response.Data != null)
+            {
+                loading = false;
+                StateHasChanged();
+                donations = response.Data;
+            }
+        }
+        catch(Exception e)
+        {
+            loading = false;
+            StateHasChanged();
+            Console.WriteLine("DonationsPage.GetDonationsAsync", e.Message);
+        }
+    }
+
+    private string GetRelatedRequestDescription(RequestViewModel? request) => request != null ? request.Description : "No request intended";
+
+    private async Task OnDeleteDonationClicked(int donationId)
+    {
+        bool? result = await dialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure to delete this donation?", 
+            yesText:"Delete", cancelText:"Cancel");
+
+        if (result == true)
+            await DeleteDonationAsync(donationId);
+    }
+
+    private async Task DeleteDonationAsync(int donationId)
+    {
+        try
+        {
+            var response = await donationsService.Delete(donationId);
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send delete request", Severity.Error);
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response?.Data == null)
+            {
+                snackbar.Add(response?.Message, Severity.Error);
+            }
+            else
+            {
+                snackbar.Add(response?.Message, Severity.Success);
+                await GetDonationsAsync();
+                StateHasChanged();
+            }
+        }
+        catch (Exception)
+        {
+            
+        }
+    }
 }

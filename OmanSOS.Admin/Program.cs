@@ -19,6 +19,7 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped(_ => http);
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
+builder.Services.AddScoped<IDonationsService, DonationsService>();
 builder.Services.AddScoped<IRequestsService, RequestsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddMudServices(config =>

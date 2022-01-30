@@ -22,14 +22,14 @@
     <RowTemplate>
         <MudTd DataLabel="Requeestor">@context.User?.Name</MudTd>
         <MudTd DataLabel="Category">@context.Category?.Name</MudTd>
-        <MudTd DataLabel="Priority">@context.Priority?.Name</MudTd>
+        <MudTd DataLabel="Priority" Style="@(GetPriorityStyle(context.Priority?.Id))">@context.Priority?.Name</MudTd>
         <MudTd DataLabel="Location">@context.Location</MudTd>
         <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
-        <MudTd DataLabel="Request Date">
-            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" aria-label="view"/>
+        <MudTd DataLabel="View">
+            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" aria-label="view" Link="@($"/help-request-details/{context.Id}")" />
         </MudTd>
-        <MudTd DataLabel="Request Date">
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" aria-label="delete"/>
+        <MudTd DataLabel="Delete">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" aria-label="delete" OnClick="() => OnDeleteRequestClicked(context.Id)"/>
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -67,6 +67,59 @@
             loading = false;
             StateHasChanged();
             Console.WriteLine("UserPage.GetUsersAsync", e.Message);
+        }
+    }
+
+    private string GetPriorityStyle(int? priorityId)
+    {
+        switch(priorityId)
+        {
+            case 1:
+                return "color: green";
+            case 2:
+                return "color: orange";
+            case 3:
+                return "color: red";
+            default:
+                return "color: black";
+        }
+    }
+
+    private async Task OnDeleteRequestClicked(int requestId)
+    {
+        bool? result = await dialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure to delete this request?", 
+            yesText:"Delete", cancelText:"Cancel");
+
+        if (result == true)
+            await DeleteRequestAsync(requestId);
+    }
+
+    private async Task DeleteRequestAsync(int requestId)
+    {
+        try
+        {
+            var response = await requestsService.Delete(requestId);
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send delete request", Severity.Error);
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response?.Data == null)
+            {
+                snackbar.Add(response?.Message, Severity.Error);
+            }
+            else
+            {
+                snackbar.Add(response?.Message, Severity.Success);
+                await GetRequestsAsync();
+                StateHasChanged();
+            }
+        }
+        catch (Exception)
+        {
+            
         }
     }
 }

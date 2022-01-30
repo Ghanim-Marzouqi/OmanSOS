@@ -14,7 +14,7 @@ public class UserRepository : BaseRepository, IUserRepository
     public async Task<int> AddAsync(User entity)
     {
         entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Users (UserTypeId, NationalId, Name, Email, Phone, PasswordHash, PasswordSalt, CreatedBy, CreatedAt) Values (@UserTypeId, @NationalId, @Name, @Email, @Phone, @PasswordHash, @PasswordSalt, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
+        const string? sql = "INSERT INTO Users (UserTypeId, NationalId, Name, Email, Phone, Location, PasswordHash, PasswordSalt, CreatedBy, CreatedAt) Values (@UserTypeId, @NationalId, @Name, @Email, @Phone, @Location, @PasswordHash, @PasswordSalt, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
         await using var connection = GetConnection();
         connection.Open();
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
@@ -80,7 +80,7 @@ public class UserRepository : BaseRepository, IUserRepository
     {
         entity.Id = id;
         entity.UpdatedAt = DateTime.Now;
-        const string? sql = "UPDATE Users SET UserTypeId = @UserTypeId, Name = @Name, Email = @Email, Phone = @Phone, PasswordHash = @PasswordHash, PasswordSalt = @PasswordSalt, IsActive = @IsActive, UpdatedBy = @UpdatedBy, UpdatedAt = @UpdatedAt WHERE Id = @Id";
+        const string? sql = "UPDATE Users SET UserTypeId = @UserTypeId, Name = @Name, Email = @Email, Phone = @Phone, Location = @Location, PasswordHash = @PasswordHash, PasswordSalt = @PasswordSalt, IsActive = @IsActive, UpdatedBy = @UpdatedBy, UpdatedAt = @UpdatedAt WHERE Id = @Id";
         await using var connection = GetConnection();
         connection.Open();
         var result = await connection.ExecuteAsync(sql, entity);

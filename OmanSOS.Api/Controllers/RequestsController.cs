@@ -57,4 +57,87 @@ public class RequestsController : ControllerBase
             });
         }
     }
+
+    [HttpGet("GetById/{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        try
+        {
+            var requestResult = await _unitOfWork.Requests.GetByIdAsync(id);
+
+            if (requestResult == null)
+            {
+                return NotFound(new ResponseViewModel<RequestViewModel>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Request not found",
+                    Data = null
+                });
+            }
+
+            var categoryResult = await _unitOfWork.Categories.GetByIdAsync(requestResult.CategoryId);
+            var priorityResult = await _unitOfWork.Priorities.GetByIdAsync(requestResult.PriorityId);
+            var userResult = await _unitOfWork.Users.GetByIdAsync(requestResult.UserId);
+
+            var request = _mapper.Map<RequestViewModel>(requestResult);
+            request.Category = _mapper.Map<CategoryViewModel>(categoryResult);
+            request.Priority = _mapper.Map<PriorityViewModel>(priorityResult);
+            request.User = _mapper.Map<UserViewModel>(userResult);
+
+            var response = new ResponseViewModel<RequestViewModel>
+            {
+                Data = request
+            };
+
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            return NotFound(new ResponseViewModel<RequestViewModel>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occurred while fetching user request details",
+                Data = null,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
+
+    [HttpDelete("Delete/{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var isDeleted = await _unitOfWork.Requests.DeleteAsync(id);
+
+            if (isDeleted > 0)
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    Message = "Request deleted successfully",
+                    Data = true
+                });
+            }
+            else
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    Message = "Request not deleted",
+                    Data = false
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            return Ok(new ResponseViewModel<bool>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occured while deleting request",
+                Data = false,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
 }

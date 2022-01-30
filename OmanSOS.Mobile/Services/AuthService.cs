@@ -9,15 +9,15 @@ public interface IAuthService
     Task<ResponseViewModel<UserViewModel>?> Login(string email, string password);
 }
 
-public class AuthService : IAuthService
+public class AuthService : BaseService, IAuthService
 {
     private readonly HttpClient _http;
     private readonly string _baseUrl;
 
-    public AuthService(HttpClient http, IConfiguration configuration)
+    public AuthService(IBrowserStorageService browserStorage, HttpClient http) : base(browserStorage)
     {
         _http = http;
-        _baseUrl = $"{configuration["ApiUrl"]}/auth";
+        _baseUrl = $"{_http.BaseAddress}/auth";
     }
 
     public async Task<ResponseViewModel<UserViewModel>?> Login(string email, string password)

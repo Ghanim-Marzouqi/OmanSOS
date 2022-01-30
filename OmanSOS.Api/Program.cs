@@ -27,6 +27,7 @@ builder.Services.AddCors(policy =>
     policy.AddPolicy(origins, config => config
         .WithOrigins(
             "http://localhost:3000", "https://localhost:3001",
+            "http://localhost:5000", "https://localhost:5001",
             "http://localhost:5000", "https://localhost:5001")
         .AllowAnyMethod()
         .AllowAnyHeader()
@@ -88,7 +89,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oman SOS Web API v1"));
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions

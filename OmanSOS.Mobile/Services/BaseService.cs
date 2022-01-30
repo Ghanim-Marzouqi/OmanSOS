@@ -18,4 +18,9 @@ public class BaseService
         var user = await _browserStorage.GetItem<UserViewModel>("user");
         return new AuthenticationHeaderValue(AuthorizationType.Bearer, user.AccessToken);
     }
+
+    public string GetBaseUri()
+    {
+        return "https://10.0.2.2:5001/api";
+    }
 }

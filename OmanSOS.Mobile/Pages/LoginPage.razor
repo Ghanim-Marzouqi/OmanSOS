@@ -1,16 +1,17 @@
 ﻿@page "/"
 @layout AuthLayout
+@inject IAuthService authService
 @inject NavigationManager navigationManager
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
-    @if (alert.IsVisible)
-    {
-        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
-    }
     <div class="d-flex flex-row justify-center mud-width-full">
         <img src="/images/logo.png" alt="Logo" width="250">
     </div>
+     @if (alert.IsVisible)
+    {
+        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+    }
     <MudTextField 
         T="string" 
         @bind-Value="@model.Email" 
@@ -75,8 +76,50 @@
         }
     }
 
-    private void OnValidSubmit()
+    private async Task OnValidSubmit()
     {
-        navigationManager.NavigateTo("/home");
+        try
+        {
+            var response = await authService.Login(model.Email, model.Password);
+
+            if (response == null)
+            {
+                isLoading = false;
+                alert.AlertType = Severity.Error;
+                alert.Message = "Cannot send login request";
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                isLoading = false;
+                alert.AlertType = Severity.Error;
+                alert.Message = response.Message;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                isLoading = false;
+                alert.AlertType = Severity.Success;
+                alert.Message = response.Message;
+                alert.IsVisible = true;
+                StateHasChanged();
+                new Timeout(() => navigationManager.NavigateTo("/home"), 2000);
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            isLoading = false;
+            alert.AlertType = Severity.Error;
+            // alert.Message = "An error occurred while logging in";
+            alert.Message = e.Message;
+            alert.IsVisible = true;
+            StateHasChanged();
+            return;
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OmanSOS.Core;
+using OmanSOS.Core.Models;
 using OmanSOS.Core.ViewModels;
 using System.Net;
 
@@ -8,6 +10,7 @@ namespace OmanSOS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class RequestsController : ControllerBase
 {
     private readonly IMapper _mapper;
@@ -17,6 +20,57 @@ public class RequestsController : ControllerBase
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+    }
+
+    [HttpPost("Add")]
+    public async Task<IActionResult> Add(RequestViewModel requestViewModel)
+    {
+        if (requestViewModel == null)
+        {
+            return BadRequest(new ResponseViewModel<bool>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Data sent incomplete",
+                Data = false
+            });
+        }
+
+        try
+        {
+            var request = _mapper.Map<Request>(requestViewModel);
+
+            var insertedId = await _unitOfWork.Requests.AddAsync(request);
+
+            if (insertedId > 0)
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.Created,
+                    Message = "Your request has been added successfully",
+                    Data = true
+                });
+            }
+            else
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Cannot add your request",
+                    Data = true
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            return NotFound(new ResponseViewModel<bool>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occurred while adding a new request",
+                Data = false,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
     }
 
     [HttpGet("GetAll")]

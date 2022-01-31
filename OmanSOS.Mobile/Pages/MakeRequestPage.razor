@@ -1,0 +1,204 @@
+﻿@page "/make-request"
+@layout MainLayout
+@inject IBrowserStorageService browserStorageService
+@inject IMetadataService metadataService
+@inject IRequestsService requestsService
+@inject ISnackbar snackbar
+@inject NavigationManager navigationManager
+
+<h3 class="mb-4">Make New Request</h3>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    @if (alert.IsVisible)
+    {
+        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+    }
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Description" 
+        For="@(() => model.Description)" 
+        Label="Request Description"
+        Margin="Margin.Dense"
+        Class="my-6"
+        Lines="3"
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Location" 
+        For="@(() => model.Location)" 
+        Label="Location"
+        Margin="Margin.Dense"
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudSelect T="int" Label="Category" @bind-Value="model.CategoryId" For="@(() => model.CategoryId)" Margin="Margin.Dense" Class="my-6" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+        <MudSelectItem T="int" Value="0">Select Category</MudSelectItem>
+        @foreach (var category in categories)
+        {
+            <MudSelectItem T="int" Value="category.Id">@category.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="int" Label="Priority" @bind-Value="model.PriorityId" For="@(() => model.PriorityId)" Margin="Margin.Dense" Class="my-6" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+        <MudSelectItem T="int" Value="0">Select Priority</MudSelectItem>
+        @foreach (var priority in priorities)
+        {
+            <MudSelectItem T="int" Value="priority.Id">@priority.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3">
+        @if (isLoading)
+        {
+            <MudProgressCircular Color="Color.Tertiary" Size="Size.Small" Style="margin-left: 10px;" Indeterminate="true" />
+        }
+        else
+        {
+            @("Send Request")
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
+        Go Back
+    </MudButton>
+</EditForm>
+
+@code 
+{
+    // Properties
+    RequestModel model = new();
+    AlertModel alert = new();
+    IEnumerable<CategoryViewModel> categories = new List<CategoryViewModel>();
+    IEnumerable<PriorityViewModel> priorities = new List<PriorityViewModel>();
+    bool isLoading;
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategories();
+        await GetPriorities();
+    }
+
+    // Private Methods
+    private async Task GetCategories()
+    {
+        try
+        {
+            var response = await metadataService.GetCategories();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get categories", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                categories = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting categories", Severity.Error);
+        }
+    }
+
+    private async Task GetPriorities()
+    {
+        try
+        {
+            var response = await metadataService.GetPriorities();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get priorities", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                priorities = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting priorities", Severity.Error);
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+            if (user == null)
+            {
+                snackbar.Add("User not logged in", Severity.Warning);
+                return;
+            }
+
+            var request = new RequestViewModel
+            {
+                CategoryId = model.CategoryId,
+                PriorityId = model.PriorityId,
+                UserId = user.Id,
+                Description = model.Description,
+                Location = model.Location,
+                CreatedBy = user.Name
+            };
+
+            var response = await requestsService.Add(request);
+
+            if (response == null)
+            {
+                isLoading = false;
+                alert.Message = "Cannot send request";
+                alert.AlertType = Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
+            {
+                isLoading = false;
+                alert.Message = response.Message;
+                alert.AlertType = Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                isLoading = false;
+                alert.Message = response.Message;
+                alert.AlertType = Severity.Success;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            isLoading = false;
+            alert.Message = "An error occurred while send new request";
+            alert.AlertType = Severity.Error;
+            alert.IsVisible = true;
+            StateHasChanged();
+            return;
+        }
+    }
+
+    private void GoBack()
+    {
+        navigationManager.NavigateTo("/home");
+    }
+}

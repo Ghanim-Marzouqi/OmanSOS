@@ -1,4 +1,38 @@
 ﻿@page "/home"
 @layout MainLayout
+@inject NavigationManager navigationManager
 
-<h3>Welcome To Oman SOS</h3>
+<MudGrid Class="d-flex align-center" Style="margin-top: 150px">
+    <MudItem xs="6" Class="d-flex justify-end">
+        <MudLink Href="/make-request">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/helping.png" width="65" height="65" class="mb-2" />
+                <strong>Make a request</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+    <MudItem xs="6" Class="d-flex justify-start">
+        <MudLink Href="/make-donation">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/heart.png" width="65" height="65" class="mb-2" />
+                <strong>Make a donation</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+    <MudItem xs="6" Class="d-flex justify-end">
+        <MudLink Href="/about">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/about.png" width="65" height="65" class="mb-2" onclick="GoToAboutPage" />
+                <strong>About us</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+     <MudItem xs="6" Class="d-flex justify-start">
+         <MudLink Href="/rating">
+             <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/rating.png" width="65" height="65" class="mb-2" onclick="GoToRatingPage" />
+                <strong>Rate us</strong>
+            </MudPaper>
+         </MudLink> 
+    </MudItem>
+</MudGrid>

@@ -30,10 +30,13 @@ public static class MauiProgram
         builder.Services.AddAuthorizationCore();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IBrowserStorageService, BrowserStorageService>();
+        builder.Services.AddScoped<IMetadataService, MetadataService>();
+        builder.Services.AddScoped<IDonationsService, DonationsService>();
+        builder.Services.AddScoped<IRequestsService, RequestsService>();
         builder.Services.AddScoped<IUsersService, UsersService>();
         builder.Services.AddMudServices(config =>
         {
-            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
+            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
             config.SnackbarConfiguration.PreventDuplicates = false;
             config.SnackbarConfiguration.NewestOnTop = false;
             config.SnackbarConfiguration.ShowCloseIcon = true;

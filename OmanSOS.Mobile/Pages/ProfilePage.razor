@@ -1,0 +1,30 @@
+﻿@page "/profile"
+@layout MainLayout
+@inject IBrowserStorageService browserStorageService
+
+<h3 class="mb-4">My Profile</h3>
+
+<MudPaper>
+    <MudList>
+        <MudListItem Text="@(loggedInUser.Name)" Icon="@Icons.Material.Filled.Person" />
+        <MudListItem Text="@(loggedInUser.Email)" Icon="@Icons.Material.Filled.Email" />
+        <MudListItem Text="@(loggedInUser.Phone)" Icon="@Icons.Material.Filled.Phone" />
+    </MudList>
+</MudPaper>
+
+@code {
+    // Properties
+    UserViewModel loggedInUser = new();
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user != null)
+        {
+            loggedInUser = user;
+            StateHasChanged();
+        }
+    }
+}

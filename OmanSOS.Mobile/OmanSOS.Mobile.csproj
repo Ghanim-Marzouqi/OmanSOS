@@ -60,7 +60,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="MudBlazor" Version="6.0.4" />
+	  <None Remove="Resources\Images\about.png" />
+	  <None Remove="Resources\Images\donation.png" />
+	  <None Remove="Resources\Images\heart.png" />
+	  <None Remove="Resources\Images\helping.png" />
+	  <None Remove="Resources\Images\rating.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="MudBlazor" Version="6.0.5" />
 	  <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.5" />
 	</ItemGroup>
 

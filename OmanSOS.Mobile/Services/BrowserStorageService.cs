@@ -16,7 +16,7 @@ public class BrowserStorageService : IBrowserStorageService
     private readonly IJSRuntime _jsRuntime;
     private readonly string _browserStorage;
 
-    public BrowserStorageService(IJSRuntime jsRuntime, string browserStorage = BrowserStorage.SESSION_STORAGE)
+    public BrowserStorageService(IJSRuntime jsRuntime, string browserStorage = BrowserStorage.LOCAL_STORAGE)
     {
         _jsRuntime = jsRuntime;
         _browserStorage = browserStorage;

@@ -1,0 +1,21 @@
+﻿@page "/rating"
+@layout MainLayout
+@inject ISnackbar snackbar
+
+<h3 class="mb-4">Rate us</h3>
+
+<div class="d-flex flex-column align-center pa-8">
+    <MudRating SelectedValue="rating" Size="Size.Large" Class="mb-4" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="OnRatingSendClicked">Send</MudButton>
+</div>
+
+@code {
+    // Properties
+    private int rating { get; set; }
+
+    // Private Methods
+    private void OnRatingSendClicked()
+    {
+        snackbar.Add("Thank you for rating us", Severity.Success);
+    }
+}

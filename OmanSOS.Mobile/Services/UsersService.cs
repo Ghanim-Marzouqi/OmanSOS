@@ -6,9 +6,9 @@ namespace OmanSOS.Mobile.Services;
 
 public interface IUsersService
 {
-    Task<ResponseViewModel<IEnumerable<UserViewModel>>?> GetAll();
+    Task<ResponseViewModel<IEnumerable<UserViewModel>>> GetAll();
 
-    Task<ResponseViewModel<bool>?> Delete(int userId);
+    Task<ResponseViewModel<bool>> Delete(int userId);
 }
 
 public class UsersService : BaseService, IUsersService
@@ -22,16 +22,16 @@ public class UsersService : BaseService, IUsersService
         _baseUrl = $"{configuration["ApiUrl"]}/users";
     }
 
-    public async Task<ResponseViewModel<IEnumerable<UserViewModel>>?> GetAll()
+    public async Task<ResponseViewModel<IEnumerable<UserViewModel>>> GetAll()
     {
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
-        return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<UserViewModel>>?>($"{_baseUrl}/GetAll");
+        return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<UserViewModel>>>($"{_baseUrl}/GetAll");
     }
 
-    public async Task<ResponseViewModel<bool>?> Delete(int userId)
+    public async Task<ResponseViewModel<bool>> Delete(int userId)
     {
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
         var response = await _http.DeleteAsync($"{_baseUrl}/Delete/{userId}");
-        return await response.Content.ReadFromJsonAsync<ResponseViewModel<bool>?>();
+        return await response.Content.ReadFromJsonAsync<ResponseViewModel<bool>>();
     }
 }

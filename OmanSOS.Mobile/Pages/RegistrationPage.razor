@@ -1,5 +1,6 @@
 ﻿@page "/register"
 @layout AuthLayout
+@inject IAuthService authService
 @inject NavigationManager navigationManager
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
@@ -29,6 +30,22 @@
         @bind-Value="@model.Email" 
         For="@(() => model.Email)" 
         Label="Email Address"
+        Margin="Margin.Dense"
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Phone" 
+        For="@(() => model.Phone)" 
+        Label="Phone Number"
+        Margin="Margin.Dense"
+        Class="my-6" 
+        Variant="Variant.Outlined" />
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Location" 
+        For="@(() => model.Location)" 
+        Label="Location"
         Margin="Margin.Dense"
         Class="my-6" 
         Variant="Variant.Outlined" />
@@ -98,8 +115,61 @@
         }
     }
 
-    private void OnValidSubmit()
+    private async Task OnValidSubmit()
     {
-        
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await authService.Register(new UserViewModel
+            {
+                NationalId = Convert.ToInt32(model.NationalId),
+                Name = model.Name,
+                Email = model.Email,
+                Phone = model.Phone,
+                Location = model.Location,
+                Password = model.Password,
+                CreatedBy = model.Name
+            });
+
+            if (response == null)
+            {
+                isLoading = false;
+                alert.Message = "Cannot send registration request";
+                alert.AlertType = Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.Created || response.Data == null)
+            {
+                isLoading = false;
+                alert.Message = response.Message;
+                alert.AlertType = Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                isLoading = false;
+                alert.Message = response.Message;
+                alert.AlertType = Severity.Success;
+                alert.IsVisible = true;
+                StateHasChanged();
+                new Timeout(() => navigationManager.NavigateTo(navigationManager.BaseUri), 2000);
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            isLoading = false;
+            alert.Message = "An error occurred while registering new user";
+            alert.AlertType = Severity.Error;
+            alert.IsVisible = true;
+            StateHasChanged();
+            return;
+        }
     }
 }

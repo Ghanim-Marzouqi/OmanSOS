@@ -1,6 +1,7 @@
 ﻿@page "/"
 @layout AuthLayout
 @inject IAuthService authService
+@inject IBrowserStorageService browserStorageService
 @inject NavigationManager navigationManager
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
@@ -59,6 +60,20 @@
     InputType passwordInput = InputType.Password;
     string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        var rememberMeChecked = await browserStorageService.GetItem<bool>("rememberMe");
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (rememberMeChecked && user != null)
+        {
+            model.Email = user.Email;
+            model.Password = user.Password;
+            rememberMe = true;
+        }
+    }
+
     // Private Methods
     private void TogglePasswordVisibility()
     {
@@ -102,6 +117,22 @@
             }
             else
             {
+                // Store logged in user
+                var user = response.Data;
+                user.Password = model.Password;
+                await browserStorageService.SetItem("user", user);
+
+                // Store user if is remember is true
+                if (rememberMe)
+                {
+                    await browserStorageService.SetItem("rememberMe", rememberMe);
+                }
+                else
+                {
+                    await browserStorageService.RemoveItem("rememberMe");
+                }
+
+
                 isLoading = false;
                 alert.AlertType = Severity.Success;
                 alert.Message = response.Message;

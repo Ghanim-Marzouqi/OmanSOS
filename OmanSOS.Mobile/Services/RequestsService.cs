@@ -12,6 +12,8 @@ public interface IRequestsService
     Task<ResponseViewModel<RequestViewModel>> GetById(int id);
 
     Task<ResponseViewModel<bool>> Delete(int requestId);
+
+    Task<ResponseViewModel<IEnumerable<RequestViewModel>>> GetRequestsByUserId(int userId);
 }
 public class RequestsService : BaseService, IRequestsService
 {
@@ -48,5 +50,11 @@ public class RequestsService : BaseService, IRequestsService
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
         var response = await _http.DeleteAsync($"{_baseUrl}/Delete/{requestId}");
         return await response.Content.ReadFromJsonAsync<ResponseViewModel<bool>>();
+    }
+
+    public async Task<ResponseViewModel<IEnumerable<RequestViewModel>>> GetRequestsByUserId(int userId)
+    {
+        _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
+        return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<RequestViewModel>>>($"{_baseUrl}/GetRequestsByUserId/{userId}");
     }
 }

@@ -60,11 +60,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiImage Remove="Resources\Images\placeholder.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\about.png" />
 	  <None Remove="Resources\Images\donation.png" />
 	  <None Remove="Resources\Images\heart.png" />
 	  <None Remove="Resources\Images\helping.png" />
+	  <None Remove="Resources\Images\placeholder.jpg" />
 	  <None Remove="Resources\Images\rating.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Resources\Images\placeholder.jpg">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>

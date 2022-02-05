@@ -1,4 +1,64 @@
 ﻿@page "/my-donations"
 @layout MainLayout
+@inject IDonationsService donationsService
+@inject IBrowserStorageService browserStorageService
+@inject ISnackbar snackbar
 
 <h3 class="mb-4">My Donations</h3>
+
+<MudTable Items="@donations" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Request</MudTh>
+        <MudTh>Amount</MudTh>
+        <MudTh>Donation Date</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Request">@(GetRelatedRequestDescription(context.Request))</MudTd>
+        <MudTd DataLabel="Amount">OMR @context.Amount</MudTd>
+        <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    // Properties
+    private IEnumerable<DonationViewModel> donations = new List<DonationViewModel>();
+    private bool loading = false;
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user != null)
+            await GetDonationsByUserIdAsync(user.Id);
+    }
+
+    // Private Methods
+    private string GetRelatedRequestDescription(RequestViewModel? request) => request != null ? request.Description : "No request intended";
+
+    // Private Methods
+    private async Task GetDonationsByUserIdAsync(int userId)
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await donationsService.GetDonationsByUserId(userId);
+
+            if (response != null && response.StatusCode == HttpStatusCode.OK && response.Data != null)
+            {
+                loading = false;
+                StateHasChanged();
+                donations = response.Data;
+            }
+        }
+        catch(Exception e)
+        {
+            loading = false;
+            snackbar.Add("An error occurred while getting list of donations", Severity.Error);
+            StateHasChanged();
+        }
+    }
+}

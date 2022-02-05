@@ -163,6 +163,32 @@ public class DonationsController : ControllerBase
         }
     }
 
+    [HttpGet("GetDonationsByUserId/{userId:int}")]
+    public async Task<IActionResult> GetRequestsByUserId(int userId)
+    {
+        try
+        {
+            var donationsResult = await _unitOfWork.Donations.GetDonationsByUserId(userId);
+            var donations = _mapper.Map<IEnumerable<DonationViewModel>>(donationsResult);
+
+            return Ok(new ResponseViewModel<IEnumerable<DonationViewModel>>
+            {
+                Data = donations
+            });
+        }
+        catch (Exception e)
+        {
+            return NotFound(new ResponseViewModel<IEnumerable<DonationViewModel>>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occurred while fetching list of donations",
+                Data = new List<DonationViewModel>(),
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
+
     [HttpDelete("Delete/{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

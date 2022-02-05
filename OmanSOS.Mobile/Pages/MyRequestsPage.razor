@@ -1,4 +1,97 @@
 ﻿@page "/my-requests"
 @layout MainLayout
+@inject IRequestsService requestsService
+@inject IBrowserStorageService browserStorageService
+@inject ISnackbar snackbar
 
 <h3 class="mb-4">My Requests</h3>
+
+<MudTable Items="@requests" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Category</MudTh>
+        <MudTh>Priority</MudTh>
+        <MudTh>Location</MudTh>
+        <MudTh>Request Date</MudTh>
+        <MudTh>View</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Category">@context.Category?.Name</MudTd>
+        <MudTd DataLabel="Priority"><span style="@(GetPriorityStyle(context.Priority?.Id))">@context.Priority?.Name</span></MudTd>
+        <MudTd DataLabel="Location">@context.Location</MudTd>
+        <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
+        <MudTd DataLabel="View">
+            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" aria-label="view" Link="@($"/request-details/{context.Id}")" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    // Properties
+    [Parameter] public int? RequestId { get; set; }
+    private IEnumerable<RequestViewModel> requests = new List<RequestViewModel>();
+    bool loading = false;
+
+    // Lifecycle Methods
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get logged in user
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user != null)
+            await GetRequestsAsync(user.Id);
+    }
+
+    // Private Methods
+    private async Task GetRequestsAsync(int userId)
+    {
+        loading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await requestsService.GetRequestsByUserId(userId);
+
+            if (response == null)
+            {
+                loading = false;
+                snackbar.Add("Cannot send request", Severity.Error);
+                StateHasChanged();
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                loading = false;
+                snackbar.Add(response.Message, Severity.Error);
+                StateHasChanged();
+            } 
+            else
+            {
+                loading = false;
+                requests = response.Data;
+                snackbar.Add(response.Message, Severity.Success);
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            snackbar.Add("An error occurred while sending request", Severity.Error);
+            StateHasChanged();
+        }
+    }
+
+    private string GetPriorityStyle(int? priorityId)
+    {
+        switch(priorityId)
+        {
+            case 1:
+                return "color: green";
+            case 2:
+                return "color: orange";
+            case 3:
+                return "color: red";
+            default:
+                return "color: black";
+        }
+    }
+}

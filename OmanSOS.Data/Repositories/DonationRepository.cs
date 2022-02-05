@@ -67,4 +67,13 @@ public class DonationRepository : BaseRepository, IDonationRepository
         var result = await connection.ExecuteAsync(sql, entity);
         return result;
     }
+
+    public async Task<IEnumerable<Donation>> GetDonationsByUserId(int userId)
+    {
+        const string? sql = "SELECT * FROM Donations WHERE UserId = @UserId";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.QueryAsync<Donation>(sql, new { UserId = userId });
+        return result == null ? new List<Donation>() : result.ToList();
+    }
 }

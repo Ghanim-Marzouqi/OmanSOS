@@ -1,0 +1,105 @@
+﻿@page "/request-details/{RequestId:int}"
+@layout MainLayout
+@inject IRequestsService requestsService
+@inject ISnackbar snackbar
+@inject NavigationManager navigationManager
+
+<h3 class="mb-4">Request Details</h3>
+
+<MudTextField 
+    @bind-Value="requestDetails.Description" 
+    Label="Request Description" 
+    Variant="Variant.Outlined"
+    Lines="3"
+    Class="my-4"
+    ReadOnly="true"/>
+<MudTextField 
+    @bind-Value="requestDetails.Location" 
+    Label="Location" 
+    Variant="Variant.Outlined"
+    Class="my-4"
+    ReadOnly="true"/>
+<MudTextField 
+    @bind-Value="requestDetails.CreatedAt" 
+    Label="Requested On" 
+    Variant="Variant.Outlined"
+    Class="my-4"
+    ReadOnly="true"/>
+<img src="images/placeholder.jpg" alt="Request Image" class="mb-2" style="width: 100%; height: 250px" />
+<MudButton Variant="Variant.Text" Color="Color.Primary" Class="mb-4" FullWidth="true" OnClick="GoBack">Go Back</MudButton>
+
+@code {
+    [Parameter] public int? RequestId { get; set; }
+    private RequestViewModel requestDetails = new RequestViewModel();
+
+    // Lifecycle Methods
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<int>(nameof(RequestId), out var value))
+        {
+            if (value == 0)
+            {
+                snackbar.Add("Invalid Request Id", Severity.Error);
+                navigationManager.NavigateTo("/my-requests");
+            }
+        }
+        else
+        {
+            RequestId = value;
+        }
+
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRequestByIdAsync();
+    }
+
+    // Private Methods
+    private async Task GetRequestByIdAsync()
+    {
+        if (!RequestId.HasValue)
+            return;
+
+        try
+        {
+            var response = await requestsService.GetById(RequestId.Value);
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request", Severity.Error);
+            }
+            else if (response.StatusCode == HttpStatusCode.OK && response.Data != null)
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                requestDetails = response.Data;
+            } 
+            else
+            {
+                snackbar.Add(response.Message, Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            snackbar.Add("An error occurred while sending request", Severity.Error);
+        }
+    }
+
+    private string GetPriorityStyle(int? priorityId)
+    {
+        switch(priorityId)
+        {
+            case 1:
+                return "color: green";
+            case 2:
+                return "color: orange";
+            case 3:
+                return "color: red";
+            default:
+                return "color: black";
+        }
+    }
+
+    private void GoBack() => navigationManager.NavigateTo("/my-requests");
+}

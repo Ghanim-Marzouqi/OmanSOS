@@ -94,4 +94,13 @@ public class RequestRepository : BaseRepository, IRequestRepository
         var result = await connection.QuerySingleOrDefaultAsync<User>(sql, new { Id = requestId });
         return result;
     }
+
+    public async Task<IEnumerable<Request>> GetRequestsByUserIdAsync(int userId)
+    {
+        const string? sql = "SELECT * FROM Requests WHERE UserId = @UserId";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.QueryAsync<Request>(sql, new { UserId = userId });
+        return result;
+    }
 }

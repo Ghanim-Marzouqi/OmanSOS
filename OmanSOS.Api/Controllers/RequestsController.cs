@@ -194,4 +194,54 @@ public class RequestsController : ControllerBase
             });
         }
     }
+
+    [HttpGet("GetRequestsByUserId/{userId:int}")]
+    public async Task<IActionResult> GetRequestsByUserId(int userId)
+    {
+        try
+        {
+            var requestsResult = await _unitOfWork.Requests.GetRequestsByUserIdAsync(userId);
+            
+            if (requestsResult.Count() > 0)
+            {
+                var requests = _mapper.Map<IEnumerable<RequestViewModel>>(requestsResult);
+
+                foreach (var request in requests)
+                {
+                    var category = _mapper.Map<CategoryViewModel>(await _unitOfWork.Categories.GetByIdAsync(request.CategoryId));
+                    var priority = _mapper.Map<PriorityViewModel>(await _unitOfWork.Priorities.GetByIdAsync(request.PriorityId));
+                    var user = _mapper.Map<UserViewModel>(await _unitOfWork.Users.GetByIdAsync(request.UserId));
+
+                    requests.First(p => p.Id == request.Id).Category = category;
+                    requests.First(p => p.Id == request.Id).Priority = priority;
+                    requests.First(p => p.Id == request.Id).User = user;
+                }
+
+                return Ok(new ResponseViewModel<IEnumerable<RequestViewModel>>
+                {
+                    Data = requests
+                });
+            }
+            else
+            {
+                return Ok(new ResponseViewModel<IEnumerable<RequestViewModel>>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "No requests found",
+                    Data = new List<RequestViewModel>()
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            return NotFound(new ResponseViewModel<IEnumerable<RequestViewModel>>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occurred while getting user requests",
+                Data = new List<RequestViewModel>(),
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
 }

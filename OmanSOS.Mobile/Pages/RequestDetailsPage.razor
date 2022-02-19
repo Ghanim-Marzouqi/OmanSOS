@@ -7,20 +7,20 @@
 <h3 class="mb-4">Request Details</h3>
 
 <MudTextField 
-    @bind-Value="requestDetails.Description" 
+    Value="requestDetails.Description" 
     Label="Request Description" 
     Variant="Variant.Outlined"
     Lines="3"
     Class="my-4"
     ReadOnly="true"/>
 <MudTextField 
-    @bind-Value="requestDetails.Location" 
+    Value="requestDetails.Location?.Name" 
     Label="Location" 
     Variant="Variant.Outlined"
     Class="my-4"
     ReadOnly="true"/>
 <MudTextField 
-    @bind-Value="requestDetails.CreatedAt" 
+    Value="requestDetails.CreatedAt" 
     Label="Requested On" 
     Variant="Variant.Outlined"
     Class="my-4"

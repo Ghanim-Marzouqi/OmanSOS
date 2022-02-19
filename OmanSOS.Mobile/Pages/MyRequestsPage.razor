@@ -17,7 +17,7 @@
     <RowTemplate>
         <MudTd DataLabel="Category">@context.Category?.Name</MudTd>
         <MudTd DataLabel="Priority"><span style="@(GetPriorityStyle(context.Priority?.Id))">@context.Priority?.Name</span></MudTd>
-        <MudTd DataLabel="Location">@context.Location</MudTd>
+        <MudTd DataLabel="Location">@context.Location?.Name</MudTd>
         <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
         <MudTd DataLabel="View">
             <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" aria-label="view" Link="@($"/request-details/{context.Id}")" />

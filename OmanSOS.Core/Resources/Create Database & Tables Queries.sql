@@ -15,6 +15,16 @@ CREATE TABLE Categories (
 	UpdatedAt DATETIME
 );
 
+CREATE TABLE Locations (
+	Id INT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL UNIQUE,
+	IsActive BIT NOT NULL DEFAULT 1,
+	CreatedBy VARCHAR(255),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedBy VARCHAR(255),
+	UpdatedAt DATETIME
+);
+
 CREATE TABLE Priorities (
 	Id INT PRIMARY KEY,
 	Name VARCHAR(100) NOT NULL UNIQUE,
@@ -40,10 +50,10 @@ CREATE TABLE Users (
 	Id INT IDENTITY(1, 1) PRIMARY KEY,
 	UserTypeId INT NOT NULL,
 	NationalId INT NOT NULL,
+	LocationId INT NOT NULL,
 	Name VARCHAR(255) NOT NULL,
 	Email VARCHAR(255) NOT NULL UNIQUE,
 	Phone VARCHAR(20) NOT NULL,
-	Location VARCHAR(255),
 	PasswordHash VARBINARY(4000),
     PasswordSalt VARBINARY(4000),
 	IsActive BIT NOT NULL DEFAULT 1,
@@ -51,22 +61,25 @@ CREATE TABLE Users (
 	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	UpdatedBy VARCHAR(255),
 	UpdatedAt DATETIME,
-	CONSTRAINT fk_users_usertypes FOREIGN KEY(UserTypeId) REFERENCES UserTypes(Id)
+	CONSTRAINT fk_users_usertypes FOREIGN KEY(UserTypeId) REFERENCES UserTypes(Id),
+	CONSTRAINT fk_users_locations FOREIGN KEY(LocationId) REFERENCES Locations(Id)
 );
 
 CREATE TABLE Requests (
 	Id INT IDENTITY(1, 1) PRIMARY KEY,
 	CategoryId INT NOT NULL,
+	LocationId INT NOT NULL,
 	PriorityId INT NOT NULL,
 	UserId INT NOT NULL,
 	Description VARCHAR(2000) NOT NULL,
-	Location VARCHAR(255) NULL,
+	IsClosed BIT NOT NULL DEFAULT 0,
 	IsActive BIT NOT NULL DEFAULT 1,
 	CreatedBy VARCHAR(255),
 	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	UpdatedBy VARCHAR(255),
 	UpdatedAt DATETIME,
 	CONSTRAINT fk_requests_categories FOREIGN KEY(CategoryId) REFERENCES Categories(Id),
+	CONSTRAINT fk_requests_locations FOREIGN KEY(LocationId) REFERENCES Locations(Id),
 	CONSTRAINT fk_requests_priorities FOREIGN KEY(PriorityId) REFERENCES Priorities(Id),
 	CONSTRAINT fk_requests_users FOREIGN KEY(UserId) REFERENCES Users(Id)
 );

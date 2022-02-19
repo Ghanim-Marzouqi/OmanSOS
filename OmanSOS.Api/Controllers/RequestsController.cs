@@ -87,9 +87,11 @@ public class RequestsController : ControllerBase
                 foreach (var request in requests)
                 {
                     var categoryResult = await _unitOfWork.Requests.GetCategoryByRequestIdAsync(request.Id);
+                    var locationResult = await _unitOfWork.Requests.GetLocationByRequestIdAsync(request.Id);
                     var priorityResult = await _unitOfWork.Requests.GetPriorityByRequestIdAsync(request.Id);
                     var userResult = await _unitOfWork.Requests.GetRequestorByRequestIdAsync(request.Id);
                     requests.Where(p => p.Id == request.Id).First().Category = _mapper.Map<CategoryViewModel>(categoryResult);
+                    requests.Where(p => p.Id == request.Id).First().Location = _mapper.Map<LocationViewModel>(locationResult);
                     requests.Where(p => p.Id == request.Id).First().Priority = _mapper.Map<PriorityViewModel>(priorityResult);
                     requests.Where(p => p.Id == request.Id).First().User = _mapper.Map<UserViewModel>(userResult);
                 }
@@ -130,11 +132,13 @@ public class RequestsController : ControllerBase
             }
 
             var categoryResult = await _unitOfWork.Categories.GetByIdAsync(requestResult.CategoryId);
+            var locationResult = await _unitOfWork.Locations.GetByIdAsync(requestResult.LocationId);
             var priorityResult = await _unitOfWork.Priorities.GetByIdAsync(requestResult.PriorityId);
             var userResult = await _unitOfWork.Users.GetByIdAsync(requestResult.UserId);
 
             var request = _mapper.Map<RequestViewModel>(requestResult);
             request.Category = _mapper.Map<CategoryViewModel>(categoryResult);
+            request.Location = _mapper.Map<LocationViewModel>(locationResult);
             request.Priority = _mapper.Map<PriorityViewModel>(priorityResult);
             request.User = _mapper.Map<UserViewModel>(userResult);
 
@@ -209,10 +213,12 @@ public class RequestsController : ControllerBase
                 foreach (var request in requests)
                 {
                     var category = _mapper.Map<CategoryViewModel>(await _unitOfWork.Categories.GetByIdAsync(request.CategoryId));
+                    var location = _mapper.Map<LocationViewModel>(await _unitOfWork.Locations.GetByIdAsync(request.LocationId));
                     var priority = _mapper.Map<PriorityViewModel>(await _unitOfWork.Priorities.GetByIdAsync(request.PriorityId));
                     var user = _mapper.Map<UserViewModel>(await _unitOfWork.Users.GetByIdAsync(request.UserId));
 
                     requests.First(p => p.Id == request.Id).Category = category;
+                    requests.First(p => p.Id == request.Id).Location = location;
                     requests.First(p => p.Id == request.Id).Priority = priority;
                     requests.First(p => p.Id == request.Id).User = user;
                 }

@@ -23,7 +23,7 @@
         <MudTd DataLabel="Requeestor">@context.User?.Name</MudTd>
         <MudTd DataLabel="Category">@context.Category?.Name</MudTd>
         <MudTd DataLabel="Priority" Style="@(GetPriorityStyle(context.Priority?.Id))">@context.Priority?.Name</MudTd>
-        <MudTd DataLabel="Location">@context.Location</MudTd>
+        <MudTd DataLabel="Location">@context.Location?.Name</MudTd>
         <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
         <MudTd DataLabel="View">
             <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" aria-label="view" Link="@($"/help-request-details/{context.Id}")" />

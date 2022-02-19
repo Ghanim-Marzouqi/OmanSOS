@@ -13,6 +13,6 @@ public class RequestModel
     [Required(ErrorMessage = "Please enter request description")]
     public string Description { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Please enter location")]
-    public string Location { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Please select a location")]
+    public string Location { get; set; }
 }

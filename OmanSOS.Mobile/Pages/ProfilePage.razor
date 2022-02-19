@@ -9,6 +9,8 @@
         <MudListItem Text="@(loggedInUser.Name)" Icon="@Icons.Material.Filled.Person" />
         <MudListItem Text="@(loggedInUser.Email)" Icon="@Icons.Material.Filled.Email" />
         <MudListItem Text="@(loggedInUser.Phone)" Icon="@Icons.Material.Filled.Phone" />
+        <MudListItem Text="@(loggedInUser.Location?.Name)" Icon="@Icons.Material.Filled.PinDrop" />
+        <MudListItem Text="@(loggedInUser.UserType?.Name)" Icon="@Icons.Material.Filled.AssignmentInd" />
     </MudList>
 </MudPaper>
 

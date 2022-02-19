@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     {
         Categories = new CategoryRepository(configuration);
         Donations = new DonationRepository(configuration);
+        Locations = new LocationRepository(configuration);
         Priorities = new PriorityRepository(configuration);
         Requests = new RequestRepository(configuration);
         Users = new UserRepository(configuration);
@@ -20,6 +21,8 @@ public class UnitOfWork : IUnitOfWork
     public ICategoryRepository Categories { get; }
 
     public IDonationRepository Donations { get; }
+
+    public ILocationRepository Locations { get; }
 
     public IPriorityRepository Priorities { get; }
 

@@ -7,6 +7,8 @@ public interface IMetadataService
 {
     Task<ResponseViewModel<IEnumerable<CategoryViewModel>>> GetCategories();
 
+    Task<ResponseViewModel<IEnumerable<LocationViewModel>>> GetLocations();
+
     Task<ResponseViewModel<IEnumerable<PriorityViewModel>>> GetPriorities();
 }
 
@@ -25,6 +27,11 @@ public class MetadataService : BaseService, IMetadataService
     {
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
         return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<CategoryViewModel>>>($"{_baseUrl}/GetCategories");
+    }
+
+    public async Task<ResponseViewModel<IEnumerable<LocationViewModel>>> GetLocations()
+    {
+        return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<LocationViewModel>>>($"{_baseUrl}/GetLocations");
     }
 
     public async Task<ResponseViewModel<IEnumerable<PriorityViewModel>>> GetPriorities()

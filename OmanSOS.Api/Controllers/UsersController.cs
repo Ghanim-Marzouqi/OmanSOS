@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OmanSOS.Api.Interfaces;
 using OmanSOS.Core;
 using OmanSOS.Core.Models;
 using OmanSOS.Core.ViewModels;
@@ -13,11 +14,15 @@ namespace OmanSOS.Api.Controllers;
 [Authorize]
 public class UsersController : ControllerBase
 {
+    private readonly IAuthService _authService;
+    private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
-    public UsersController(IMapper mapper, IUnitOfWork unitOfWork)
+    public UsersController(IAuthService authService, IConfiguration configuration, IMapper mapper, IUnitOfWork unitOfWork)
     {
+        _authService = authService;
+        _configuration = configuration;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
@@ -37,6 +42,9 @@ public class UsersController : ControllerBase
             }
 
             var user = _mapper.Map<User>(userViewModel);
+            _authService.CreatePasswordHash(_configuration.GetSection("DefaultPassword").Value, out var passwordHash, out var passwordSalt);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
             var insertedId = await _unitOfWork.Users.AddAsync(user);
 
             if (insertedId != 0)
@@ -76,11 +84,21 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var users = await _unitOfWork.Users.GetAllAsync();
+            // 1. Get users
+            var usersResults = await _unitOfWork.Users.GetAllAsync();
+            var users = _mapper.Map<IEnumerable<UserViewModel>>(usersResults);
+
+            // 2. Get user locations
+            foreach (var user in users)
+            {
+                var locationResult = await _unitOfWork.Locations.GetByIdAsync(user.LocationId);
+                if (locationResult != null)
+                    users.First(p => p.Id == user.Id).Location = _mapper.Map<LocationViewModel>(locationResult);
+            }
 
             return Ok(new ResponseViewModel<IEnumerable<UserViewModel>>
             {
-                Data = _mapper.Map<IEnumerable<UserViewModel>>(users)
+                Data = users
             });
         }
         catch (Exception e)

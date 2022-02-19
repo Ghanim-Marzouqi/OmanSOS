@@ -47,6 +47,33 @@ public class MetadataController : ControllerBase
         }
     }
 
+    [HttpGet("GetLocations")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetLocations()
+    {
+        try
+        {
+            var locationsResult = await _unitOfWork.Locations.GetAllAsync();
+
+            var locations = _mapper.Map<IEnumerable<LocationViewModel>>(locationsResult);
+
+            return Ok(new ResponseViewModel<IEnumerable<LocationViewModel>>
+            {
+                Data = locations
+            });
+        }
+        catch (Exception e)
+        {
+            return Ok(new ResponseViewModel<IEnumerable<LocationViewModel>>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occured while getting list of locations",
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
+
     [HttpGet("GetPriorities")]
     public async Task<IActionResult> GetPriorities()
     {

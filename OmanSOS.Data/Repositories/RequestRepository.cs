@@ -14,7 +14,7 @@ public class RequestRepository : BaseRepository, IRequestRepository
     public async Task<int> AddAsync(Request entity)
     {
         entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Requests (CategoryId, PriorityId, UserId, Description, Location, CreatedBy, CreatedAt) Values (@CategoryId, @PriorityId, @UserId, @Description, @Location, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
+        const string? sql = "INSERT INTO Requests (CategoryId, LocationId, PriorityId, UserId, Description, CreatedBy, CreatedAt) Values (@CategoryId, @LocationId, @PriorityId, @UserId, @Description, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
         await using var connection = GetConnection();
         connection.Open();
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
@@ -74,6 +74,15 @@ public class RequestRepository : BaseRepository, IRequestRepository
         await using var connection = GetConnection();
         connection.Open();
         var result = await connection.QuerySingleOrDefaultAsync<Category>(sql, new { Id = requestId });
+        return result;
+    }
+
+    public async Task<Location> GetLocationByRequestIdAsync(int requestId)
+    {
+        const string? sql = "SELECT l.* FROM Locations l INNER JOIN Requests r  ON l.Id = r.LocationId WHERE r.Id = @Id";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.QuerySingleOrDefaultAsync<Location>(sql, new { Id = requestId });
         return result;
     }
 

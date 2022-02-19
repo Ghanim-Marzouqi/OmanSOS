@@ -14,7 +14,7 @@ public class UserRepository : BaseRepository, IUserRepository
     public async Task<int> AddAsync(User entity)
     {
         entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Users (UserTypeId, NationalId, Name, Email, Phone, Location, PasswordHash, PasswordSalt, CreatedBy, CreatedAt) Values (@UserTypeId, @NationalId, @Name, @Email, @Phone, @Location, @PasswordHash, @PasswordSalt, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
+        const string? sql = "INSERT INTO Users (UserTypeId, NationalId, LocationId, Name, Email, Phone, PasswordHash, PasswordSalt, CreatedBy, CreatedAt) Values (@UserTypeId, @NationalId, @LocationId, @Name, @Email, @Phone, @PasswordHash, @PasswordSalt, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
         await using var connection = GetConnection();
         connection.Open();
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);

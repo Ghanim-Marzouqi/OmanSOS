@@ -23,13 +23,14 @@
         Class="my-6"
         Lines="3"
         Variant="Variant.Outlined" />
-    <MudTextField 
+    <MudAutocomplete 
         T="string" 
-        @bind-Value="@model.Location" 
-        For="@(() => model.Location)" 
+        @bind-Value="@model.Location"
+        For="() => model.Location"
         Label="Location"
         Margin="Margin.Dense"
-        Class="my-6" 
+        SearchFunc="@SearchLocation"
+        ResetValueOnEmptyText="true"
         Variant="Variant.Outlined" />
     <MudSelect T="int" Label="Category" @bind-Value="model.CategoryId" For="@(() => model.CategoryId)" Margin="Margin.Dense" Class="my-6" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
         <MudSelectItem T="int" Value="0">Select Category</MudSelectItem>
@@ -66,6 +67,7 @@
     RequestModel model = new();
     AlertModel alert = new();
     IEnumerable<CategoryViewModel> categories = new List<CategoryViewModel>();
+    IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
     IEnumerable<PriorityViewModel> priorities = new List<PriorityViewModel>();
     bool isLoading;
 
@@ -73,6 +75,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GetCategories();
+        await GetLocations();
         await GetPriorities();
     }
 
@@ -104,6 +107,33 @@
         }
     }
 
+    private async Task GetLocations()
+    {
+        try
+        {
+            var response = await metadataService.GetLocations();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get locations", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                locations = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting locations", Severity.Error);
+        }
+    }
+
     private async Task GetPriorities()
     {
         try
@@ -131,6 +161,14 @@
         }
     }
 
+    private async Task<IEnumerable<string>> SearchLocation(string value)
+    {
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+            return await Task.Run(() => locations.Select(p => p.Name).ToList<string>());
+        return await Task.Run(() => locations.Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(p => p.Name).ToList<string>());
+    }
+
     private async Task OnValidSubmit()
     {
         isLoading = true;
@@ -150,9 +188,9 @@
             {
                 CategoryId = model.CategoryId,
                 PriorityId = model.PriorityId,
+                LocationId = locations.First(p => p.Name == model.Location).Id,
                 UserId = user.Id,
                 Description = model.Description,
-                Location = model.Location,
                 CreatedBy = user.Name
             };
 

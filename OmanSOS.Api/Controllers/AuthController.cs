@@ -46,7 +46,9 @@ public class AuthController : ControllerBase
 
             // 3. Create a new token
             var userType = await _unitOfWork.UserTypes.GetByIdAsync(user.UserTypeId);
+            var location = await _unitOfWork.Locations.GetByIdAsync(user.LocationId);
             var loggedInUser = _mapper.Map<UserViewModel>(user);
+            loggedInUser.Location = _mapper.Map<LocationViewModel>(location) ?? null;
             loggedInUser.UserType = _mapper.Map<UserTypeViewModel>(userType) ?? null;
             loggedInUser.AccessToken = _authService.CreateAccessToken(loggedInUser);
 

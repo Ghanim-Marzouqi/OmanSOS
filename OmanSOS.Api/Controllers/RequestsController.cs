@@ -37,6 +37,19 @@ public class RequestsController : ControllerBase
 
         try
         {
+            // 1. Check if request is available in database
+            var isOpenRequestExisted = await _unitOfWork.Requests.IsOpenRequestExisted(requestViewModel.UserId);
+
+            if (isOpenRequestExisted)
+            {
+                return BadRequest(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "You cannot send another request",
+                    Data = false
+                });
+            }
+
             var request = _mapper.Map<Request>(requestViewModel);
 
             var insertedId = await _unitOfWork.Requests.AddAsync(request);

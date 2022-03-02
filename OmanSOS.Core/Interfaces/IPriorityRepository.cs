@@ -4,4 +4,5 @@ namespace OmanSOS.Core.Interfaces;
 
 public interface IPriorityRepository : IBaseRepository<Priority>
 {
+    Task<int> GetNextId();
 }

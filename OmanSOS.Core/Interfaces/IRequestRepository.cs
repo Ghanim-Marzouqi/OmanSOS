@@ -9,4 +9,5 @@ public interface IRequestRepository : IBaseRepository<Request>
     Task<Priority> GetPriorityByRequestIdAsync(int requestId);
     Task<User> GetRequestorByRequestIdAsync(int requestId);
     Task<IEnumerable<Request>> GetRequestsByUserIdAsync(int userId);
+    Task<bool> IsOpenRequestExisted(int userId);
 }

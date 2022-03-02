@@ -20,7 +20,7 @@ public class RegistrationModel
     [RegularExpression(@"^[79]\d{7}$", ErrorMessage = "Phone number is invalid")]
     public string Phone { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Please enter location")]
+    [Required(ErrorMessage = "Please choose location")]
     public string Location { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Please enter password")]

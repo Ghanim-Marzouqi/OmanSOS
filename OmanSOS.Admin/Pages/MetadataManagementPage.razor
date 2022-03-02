@@ -1,0 +1,260 @@
+﻿@page "/metadata-management"
+@layout MainLayout
+@inject IMetadataService metadataService
+@inject IDialogService dialogService
+@inject ISnackbar snackbar
+
+<PageTitle>Oman SOS | Metadata Management</PageTitle>
+
+<h3 class="mb-4">Metadata Management</h3>
+
+<div class="d-flex justify-end my-2">
+    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Primary" OnClick="OpenAddCategoryDialog">Add New User</MudButton>
+</div>
+<MudTable Items="@categories" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-8">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Delete">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" OnClick="() => OnDeleteCategoryClicked(context.Id)" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<div class="d-flex justify-end my-2">
+    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Primary" OnClick="OpenAddLocationDialog">Add New User</MudButton>
+</div>
+<MudTable Items="@locations" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-8">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Delete">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" OnClick="() => OnDeleteLocationClicked(context.Id)" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<div class="d-flex justify-end my-2">
+    <MudButton Variant="Variant.Filled" Size="Size.Small" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Primary" OnClick="OpenAddPriorityDialog">Add New User</MudButton>
+</div>
+<MudTable Items="@priorities" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Delete">
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" OnClick="() => OnDeletePriorityClicked(context.Id)" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    // Properties
+    private IEnumerable<CategoryViewModel> categories = new List<CategoryViewModel>();
+    private IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
+    private IEnumerable<PriorityViewModel> priorities = new List<PriorityViewModel>();
+    private bool loading = false;
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategories();
+        await GetLocations();
+        await GetPriorities();
+    }
+
+    // Private Methods
+    private async Task GetCategories()
+    {
+        try
+        {
+            var response = await metadataService.GetCategories();
+
+            if (response != null && response.Data != null)
+            {
+                categories = response.Data;
+            }
+            else
+            {
+                snackbar.Add("Cannot get categories", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Cannot get categories", Severity.Error);
+        }
+    }
+
+    private async Task GetLocations()
+    {
+        try
+        {
+            var response = await metadataService.GetLocations();
+
+            if (response != null && response.Data != null)
+            {
+                locations = response.Data;
+            }
+            else
+            {
+                snackbar.Add("Cannot get categories", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Cannot get categories", Severity.Error);
+        }
+    }
+
+    private async Task GetPriorities()
+    {
+        try
+        {
+            var response = await metadataService.GetPriorities();
+
+            if (response != null && response.Data != null)
+            {
+                priorities = response.Data;
+            }
+            else
+            {
+                snackbar.Add("Cannot get categories", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Cannot get categories", Severity.Error);
+        }
+    }
+
+    private async Task OpenAddCategoryDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = false, FullWidth = true, MaxWidth = MaxWidth.Medium };
+        var dialog = dialogService.Show<AddCategoryDialog>("Add New Category", options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await GetCategories();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAddLocationDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = false, FullWidth = true, MaxWidth = MaxWidth.Medium };
+        var dialog = dialogService.Show<AddLocationDialog>("Add New Location", options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await GetLocations();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAddPriorityDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = false, FullWidth = true, MaxWidth = MaxWidth.Medium };
+        var dialog = dialogService.Show<AddPriorityDialog>("Add New Priority", options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await GetPriorities();
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnDeleteCategoryClicked(int categoryId)
+    {
+        bool? result = await dialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure to delete this category?", 
+            yesText:"Delete!", cancelText:"Cancel");
+
+        try
+        {
+            var response = await metadataService.DeleteCategory(categoryId);
+
+            if (response != null && response.Data == true)
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                await GetCategories();
+                StateHasChanged();
+            }
+            else
+                snackbar.Add("Could not delete category", Severity.Error);
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Could not delete category", Severity.Error);
+        }
+    }
+
+    private async Task OnDeleteLocationClicked(int locationId)
+    {
+        bool? result = await dialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure to delete this location?", 
+            yesText:"Delete!", cancelText:"Cancel");
+
+        try
+        {
+            var response = await metadataService.DeleteLocation(locationId);
+
+            if (response != null && response.Data == true)
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                await GetLocations();
+                StateHasChanged();
+            }
+            else
+                snackbar.Add("Could not delete location", Severity.Error);
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Could not delete location", Severity.Error);
+        }
+    }
+
+    private async Task OnDeletePriorityClicked(int priorityId)
+    {
+        bool? result = await dialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure to delete this priority?", 
+            yesText:"Delete!", cancelText:"Cancel");
+
+        try
+        {
+            var response = await metadataService.DeletePriority(priorityId);
+
+            if (response != null && response.Data == true)
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                await GetPriorities();
+                StateHasChanged();
+            }
+            else
+                snackbar.Add("Could not delete priority", Severity.Error);
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Could not delete priority", Severity.Error);
+        }
+    }
+}

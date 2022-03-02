@@ -38,7 +38,7 @@ public class DonationsService : BaseService, IDonationsService
         return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<DonationViewModel>>>($"{_baseUrl}/GetAll");
     }
 
-    public async Task<ResponseViewModel<DonationViewModel>?> GetById(int id)
+    public async Task<ResponseViewModel<DonationViewModel>> GetById(int id)
     {
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
         return await _http.GetFromJsonAsync<ResponseViewModel<DonationViewModel>>($"{_baseUrl}/GetById/{id}");

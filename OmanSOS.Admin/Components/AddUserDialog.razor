@@ -1,4 +1,5 @@
 ﻿@inject IUsersService usersService
+@inject IMetadataService metadataService 
 @inject ISnackbar snackbar
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
@@ -37,6 +38,15 @@
                 Label="Phone" 
                 Class="my-6" 
                 Variant="Variant.Outlined" />
+            <MudAutocomplete 
+                T="string" 
+                @bind-Value="@model.Location"
+                For="() => model.Location"
+                Label="Location"
+                SearchFunc="@SearchLocation"
+                ResetValueOnEmptyText="true"
+                Class="my-6"
+                Variant="Variant.Outlined" />
             <MudSelect T="int" @bind-Value="model.UserTypeId" Label="User Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem T="int" Value="1">Regular User</MudSelectItem>
                 <MudSelectItem T="int" Value="2">Administrator</MudSelectItem>
@@ -54,11 +64,51 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
     private AddUserModel model = new();
     private AlertModel alert = new();
+    IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
 
     // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLocations();
+    }
 
     // Private Methods
     void Cancel() => MudDialog.Cancel();
+
+    private async Task GetLocations()
+    {
+        try
+        {
+            var response = await metadataService.GetLocations();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get locations", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                locations = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting locations", Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<string>> SearchLocation(string value)
+    {
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+            return await Task.Run(() => locations.Select(p => p.Name).ToList<string>());
+        return await Task.Run(() => locations.Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(p => p.Name).ToList<string>());
+    }
 
     private async Task OnValidSubmit()
     {

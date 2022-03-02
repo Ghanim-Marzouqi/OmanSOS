@@ -35,7 +35,7 @@
     }
 
     // Private Methods
-    private string GetRelatedRequestDescription(RequestViewModel? request) => request != null ? request.Description : "No request intended";
+    private string GetRelatedRequestDescription(RequestViewModel request) => request != null ? request.Description : "No request intended";
 
     // Private Methods
     private async Task GetDonationsByUserIdAsync(int userId)
@@ -54,7 +54,7 @@
                 donations = response.Data;
             }
         }
-        catch(Exception e)
+        catch(Exception)
         {
             loading = false;
             snackbar.Add("An error occurred while getting list of donations", Severity.Error);

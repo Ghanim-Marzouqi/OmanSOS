@@ -1,0 +1,112 @@
+﻿@inject IBrowserStorageService broswerService
+@inject IMetadataService metadataService 
+@inject ISnackbar snackbar
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudDialog>
+        <DialogContent>
+            <DataAnnotationsValidator />
+            @if (alert.IsVisible)
+            {
+                <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+            }
+            <MudTextField 
+                T="int" 
+                @bind-Value="@model.Id" 
+                For="@(() => model.Id)" 
+                Label="ID" 
+                Class="my-6" 
+                Variant="Variant.Outlined"
+                ReadOnly="true"/>
+            <MudTextField 
+                T="string" 
+                @bind-Value="@model.Name" 
+                For="@(() => model.Name)" 
+                Label="Category" 
+                Class="my-6" 
+                Variant="Variant.Outlined" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    // Properties
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+    private AddCategoryModel model = new();
+    private AlertModel alert = new();
+
+    // Lifecycle Methods
+    protected override async Task OnInitializedAsync()
+    {
+        model.Id = await GetNextId();
+    }
+
+    // Private Methods
+    void Cancel() => MudDialog.Cancel();
+
+    private async Task<int> GetNextId()
+    {
+        try
+        {
+            var request = await metadataService.GetNextCategoryId();
+
+            if (request != null)
+            {
+                return request.Data;
+            }
+            else 
+            {
+                return 0;
+            }
+        }
+        catch (Exception e)
+        {
+            snackbar.Add($"Error: {e.Message}", Severity.Error);
+            return 0;
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        var user = await broswerService.GetItem<UserViewModel>("user");
+
+        if (user == null)
+            return;
+
+        try
+        {
+            var response = await metadataService.AddCategory(new CategoryViewModel
+            {
+                Id = model.Id,
+                Name = model.Name,
+                CreatedBy = user.Name
+            });
+
+            if (response == null)
+            {
+                snackbar.Add("Response Unknown", Severity.Error);
+                return;
+            } 
+            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
+            {
+                snackbar.Add(response?.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error: {e.Message}");
+            snackbar.Add($"Error: {e.Message}", Severity.Error);
+            return;
+        }
+    }
+}

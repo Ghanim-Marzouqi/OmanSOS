@@ -112,4 +112,13 @@ public class RequestRepository : BaseRepository, IRequestRepository
         var result = await connection.QueryAsync<Request>(sql, new { UserId = userId });
         return result;
     }
+
+    public async Task<bool> IsOpenRequestExisted(int userId)
+    {
+        const string? sql = "SELECT * FROM Requests WHERE UserId = @UserId AND IsClosed = 0";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.QuerySingleOrDefaultAsync<Request>(sql, new { UserId = userId });
+        return result != null ? true : false;
+    }
 }

@@ -14,7 +14,7 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
     public async Task<int> AddAsync(Category entity)
     {
         entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Categories (Id, Name, CreatedBy, CreatedAt) Values (@Id, @Name, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
+        const string? sql = "INSERT INTO Categories (Id, Name, CreatedBy, CreatedAt) Values (@Id, @Name, @CreatedBy, @CreatedAt); SELECT MAX(Id) FROM Categories";
         await using var connection = GetConnection();
         connection.Open();
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
@@ -54,6 +54,15 @@ public class CategoryRepository : BaseRepository, ICategoryRepository
         await using var connection = GetConnection();
         connection.Open();
         var result = await connection.QuerySingleOrDefaultAsync<Category>(sql, new { Id = id });
+        return result;
+    }
+
+    public async Task<int> GetNextId()
+    {
+        const string? sql = "SELECT MAX(Id) + 1 FROM Categories";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.ExecuteScalarAsync<int>(sql);
         return result;
     }
 

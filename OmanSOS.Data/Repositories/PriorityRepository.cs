@@ -14,7 +14,7 @@ public class PriorityRepository : BaseRepository, IPriorityRepository
     public async Task<int> AddAsync(Priority entity)
     {
         entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Priorities (Id, Name, CreatedBy, CreatedAt) Values (@Id, @Name, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
+        const string? sql = "INSERT INTO Priorities (Id, Name, CreatedBy, CreatedAt) Values (@Id, @Name, @CreatedBy, @CreatedAt); SELECT MAX(Id) FROM Priorities";
         await using var connection = GetConnection();
         connection.Open();
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
@@ -54,6 +54,15 @@ public class PriorityRepository : BaseRepository, IPriorityRepository
         await using var connection = GetConnection();
         connection.Open();
         var result = await connection.QuerySingleOrDefaultAsync<Priority>(sql, new { Id = id });
+        return result;
+    }
+
+    public async Task<int> GetNextId()
+    {
+        const string? sql = "SELECT MAX(Id) + 1 FROM Priorities";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.ExecuteScalarAsync<int>(sql);
         return result;
     }
 

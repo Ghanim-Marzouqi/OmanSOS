@@ -13,10 +13,14 @@ public class DonationRepository : BaseRepository, IDonationRepository
 
     public async Task<int> AddAsync(Donation entity)
     {
-        entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Donations (UserId, RequestId, Amount, CreatedBy, CreatedAt) Values (@UserId, @RequestId, @Amount, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int);";
         await using var connection = GetConnection();
         connection.Open();
+
+        if (entity.RequestId != null)
+            await connection.ExecuteAsync("UPDATE Requests SET IsClosed = 1 WHERE Id = @Id", new { Id = entity.RequestId });
+
+        entity.CreatedAt = DateTime.Now;
+        const string? sql = "INSERT INTO Donations (UserId, RequestId, Amount, CreatedBy, CreatedAt) Values (@UserId, @RequestId, @Amount, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int)";
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
         return insertedId;
     }

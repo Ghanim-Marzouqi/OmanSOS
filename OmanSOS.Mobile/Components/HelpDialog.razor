@@ -1,0 +1,180 @@
+﻿@inject IBrowserStorageService browserStorageService
+@inject IMetadataService metadataService
+@inject IRequestsService requestsService
+@inject ISnackbar snackbar
+@inject NavigationManager navigationManager
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <MudDialog>
+        <DialogContent>
+            <DataAnnotationsValidator />
+            <MudSelect T="int" Label="Category" @bind-Value="model.CategoryId" For="@(() => model.CategoryId)" Margin="Margin.Dense" Class="my-6" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem T="int" Value="0">Select Category</MudSelectItem>
+                @foreach (var category in categories)
+                {
+                    <MudSelectItem T="int" Value="category.Id">@category.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudAutocomplete 
+                T="string" 
+                @bind-Value="@model.Location"
+                For="() => model.Location"
+                Label="Location"
+                Margin="Margin.Dense"
+                SearchFunc="@SearchLocation"
+                ResetValueOnEmptyText="true"
+                Variant="Variant.Outlined" />
+           <MudTextField 
+                T="string" 
+                @bind-Value="@model.Description" 
+                For="@(() => model.Description)" 
+                Label="Request Description"
+                Margin="Margin.Dense"
+                Class="my-6"
+                Lines="3"
+                Variant="Variant.Outlined" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Send</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    // Properties
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+    RequestModel model = new();
+    IEnumerable<CategoryViewModel> categories = new List<CategoryViewModel>();
+    IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
+    IEnumerable<PriorityViewModel> priorities = new List<PriorityViewModel>();
+    bool isLoading;
+
+    // Lifecycle Methods
+    protected override void OnInitialized()
+    {
+        model.PriorityId = 4;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategories();
+        await GetLocations();
+    }
+
+    // Private Methods
+    private async Task GetCategories()
+    {
+        try
+        {
+            var response = await metadataService.GetCategories();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get categories", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                categories = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting categories", Severity.Error);
+        }
+    }
+
+    private async Task GetLocations()
+    {
+        try
+        {
+            var response = await metadataService.GetLocations();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get locations", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                locations = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting locations", Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<string>> SearchLocation(string value)
+    {
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+            return await Task.Run(() => locations.Select(p => p.Name).ToList<string>());
+        return await Task.Run(() => locations.Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(p => p.Name).ToList<string>());
+    }
+
+    private async Task OnValidSubmit()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+            if (user == null)
+            {
+                snackbar.Add("User not logged in", Severity.Warning);
+                return;
+            }
+
+            var request = new RequestViewModel
+            {
+                CategoryId = model.CategoryId,
+                PriorityId = model.PriorityId,
+                LocationId = locations.First(p => p.Name == model.Location).Id,
+                UserId = user.Id,
+                Description = model.Description,
+                CreatedBy = user.Name
+            };
+
+            var response = await requestsService.Add(request);
+
+            if (response == null)
+            {
+                MudDialog.Close(DialogResult.Ok(false));
+            }
+            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
+            {
+                MudDialog.Close(DialogResult.Ok(false));
+            }
+            else
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        catch (Exception)
+        {
+            MudDialog.Close(DialogResult.Ok(false));
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    void Cancel() => MudDialog.Cancel();
+}

@@ -11,7 +11,7 @@
 <div class="d-flex justify-end my-2">
     <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" OnClick="OpenAddCategoryDialog">Add New Category</MudButton>
 </div>
-<MudTable Items="@categories" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-8">
+<MudTable Items="@categories" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-8">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Categories</MudText>
     </ToolBarContent>
@@ -32,7 +32,7 @@
 <div class="d-flex justify-end my-2">
     <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" OnClick="OpenAddLocationDialog">Add New Location</MudButton>
 </div>
-<MudTable Items="@locations" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-8">
+<MudTable Items="@locations" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-8">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Locations</MudText>
     </ToolBarContent>
@@ -53,7 +53,7 @@
 <div class="d-flex justify-end my-2">
     <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" OnClick="OpenAddPriorityDialog">Add New Priority</MudButton>
 </div>
-<MudTable Items="@priorities" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info">
+<MudTable Items="@priorities" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Loading="@loading" LoadingProgressColor="Color.Info" Class="mb-12">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Priorities</MudText>
     </ToolBarContent>

@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Uploads\Images\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\OmanSOS.Data\OmanSOS.Data.csproj" />
   </ItemGroup>
 

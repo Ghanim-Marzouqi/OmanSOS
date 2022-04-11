@@ -44,12 +44,12 @@
 
 @code {
     // Properties
-    LoginModel model = new();
-    AlertModel alert = new();
-    bool isLoading;
-    bool passwordVisibility;
-    InputType passwordInput = InputType.Password;
-    string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private LoginModel model = new();
+    private AlertModel alert = new();
+    private bool isLoading;
+    private bool passwordVisibility;
+    private InputType passwordInput = InputType.Password;
+    private string passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     // Private Methods
     private void TogglePasswordVisibility()
@@ -77,37 +77,47 @@
 
             var response = await authService.Login(model.Email, model.Password);
 
-            if (response == null)
+            if (response == null || response.Data == null)
             {
-                isLoading = false;
                 alert.AlertType = Severity.Error;
                 alert.Message = "An error occured while logging in";
                 alert.IsVisible = true;
-                StateHasChanged();
                 return;
             }
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                isLoading = false;
                 alert.AlertType = Severity.Warning;
                 alert.Message = response.Message;
                 alert.IsVisible = true;
-                StateHasChanged();
+                return;
             }
-            else
+
+            if (response.Data.UserTypeId == 1)
             {
-                await browserStorageService.SetItem("user", response.Data);
-                navigationManager.NavigateTo("/dashboard");
+                alert.AlertType = Severity.Warning;
+                alert.Message = "You're not allowed to use the system";
+                alert.IsVisible = true;
+                return;
             }
+
+            await browserStorageService.SetItem("user", response.Data);
+            alert.AlertType = Severity.Success;
+            alert.Message = "Login Successful";
+            alert.IsVisible = true;
+            navigationManager.NavigateTo("/dashboard");
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            isLoading = false;
+
             alert.AlertType = Severity.Error;
             alert.Message = "An error occured while logging in";
             alert.IsVisible = true;
+        }
+        finally
+        {
+            isLoading = false;
             StateHasChanged();
         }
     }

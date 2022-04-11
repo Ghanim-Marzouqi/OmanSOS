@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject IBrowserStorageService browserStorageService
+@inject IDialogService dialogService
+@inject ISnackbar snackbar
 @inject NavigationManager navigationManager
 
 <MudThemeProvider Theme="themeManager.Theme"/>
@@ -9,7 +11,9 @@
 <MudLayout>
     <MudAppBar Elevation="themeManager.AppBarElevation">
         <MudHidden Breakpoint="Breakpoint.MdAndUp">
-            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(e => DrawerToggle())"/>
+            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="DrawerToggle"/>
+            <MudSpacer />
+            <MudIconButton Icon="@Icons.Material.Outlined.NotificationImportant" Color="Color.Error" Edge="Edge.End" OnClick="RequestUrgentHelp"/>
         </MudHidden>
     </MudAppBar>
     <MudDrawer @bind-Open="drawerOpen" Elevation="themeManager.DrawerElevation" ClipMode="themeManager.DrawerClipMode">
@@ -43,6 +47,23 @@
     private void DrawerToggle()
     {
         drawerOpen = !drawerOpen;
+    }
+
+    private async void RequestUrgentHelp()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.Small };
+        var dialog = dialogService.Show<HelpDialog>("Urgent Help Request", options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            var isRequested = (bool)result.Data;
+
+            if (isRequested)
+                snackbar.Add("Your requested has been sent successfully", Severity.Success);
+            else
+                snackbar.Add("Cannot send your request", Severity.Error);
+        }
     }
 
     private async void Logout()

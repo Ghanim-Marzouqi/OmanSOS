@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows')) and '$(MSBuildRuntimeType)' == 'Full'">$(TargetFrameworks);net6.0-windows10.0.19041</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>OmanSOS.Mobile</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -26,8 +25,6 @@
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-maccatalyst'">14.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">21.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</SupportedOSPlatformVersion>
-		<TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -44,32 +41,13 @@
 		<MauiFont Include="Resources\Fonts\*" />
 	</ItemGroup>
 
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<!-- Required - WinUI does not yet have buildTransitive for everything -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
-		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.0.30" />
-	</ItemGroup>
-
-	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<OutputType>WinExe</OutputType>
-		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-	</PropertyGroup>
-
 	<ItemGroup>
-		<Content Remove="Properties\launchSettings.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Remove="Resources\Images\placeholder.jpg" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Resources\Images\about.png" />
-	  <None Remove="Resources\Images\donation.png" />
-	  <None Remove="Resources\Images\heart.png" />
-	  <None Remove="Resources\Images\helping.png" />
-	  <None Remove="Resources\Images\placeholder.jpg" />
-	  <None Remove="Resources\Images\rating.png" />
+	  <None Remove="Resources\Images\campaign.png" />
+	  <None Remove="Resources\Images\clothes.png" />
+	  <None Remove="Resources\Images\covid19.png" />
+	  <None Remove="Resources\Images\moon.png" />
+	  <None Remove="Resources\Images\sadaqa.png" />
+	  <None Remove="Resources\Images\zakat.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -80,8 +58,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="MudBlazor" Version="6.0.5" />
-	  <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.5" />
+	  <PackageReference Include="FluentValidation" Version="10.4.0" />
+	  <PackageReference Include="MudBlazor" Version="6.0.9" />
+	  <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.6" />
 	</ItemGroup>
 
 	<ItemGroup>

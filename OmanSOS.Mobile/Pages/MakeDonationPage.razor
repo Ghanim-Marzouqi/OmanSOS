@@ -1,157 +1,37 @@
-﻿@page "/make-donation"
+﻿@page "/make-donation/{DonationType}"
 @layout MainLayout
-@inject IBrowserStorageService browserStorageService
-@inject IDonationsService donationsService
-@inject IRequestsService requestsService
-@inject ISnackbar snackbar
 @inject NavigationManager navigationManager
 
-<h3 class="mb-4">Make a Donation</h3>
+<h3 class="mb-4">@(DonationType)</h3>
 
-<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator />
-    @if (alert.IsVisible)
-    {
-        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
-    }
-    <MudSelect T="int" Label="Request" @bind-Value="model.RequestId" For="@(() => model.RequestId)" Margin="Margin.Dense" Class="my-6" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-        <MudSelectItem T="int" Value="0">Not Related To Request</MudSelectItem>
-        @foreach (var request in requests)
-        {
-            <MudSelectItem T="int" Value="request.Id">@request.Description</MudSelectItem>
-        }
-    </MudSelect>
-    <MudTextField 
-        T="decimal" 
-        @bind-Value="@model.Amount" 
-        For="@(() => model.Amount)" 
-        Label="Amount"
-        Margin="Margin.Dense"
-        Class="my-6"
-        Variant="Variant.Outlined" />
-    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3">
-        @if (isLoading)
-        {
-            <MudProgressCircular Color="Color.Tertiary" Size="Size.Small" Style="margin-left: 10px;" Indeterminate="true" />
-        }
-        else
-        {
-            @("Donate")
-        }
-    </MudButton>
-    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
-        Go Back
-    </MudButton>
-</EditForm>
+<MudTextField 
+    T="decimal" 
+    @bind-Value="amount" 
+    Label="Amount in OMR"
+    Margin="Margin.Dense"
+    Class="my-6"
+    Variant="Variant.Outlined" />
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3" OnClick="Submit">
+    Donate
+</MudButton>
+<MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
+    Go Back
+</MudButton>
 
 @code 
 {
     // Properties
-    DonationModel model = new();
-    AlertModel alert = new();
-    IEnumerable<RequestViewModel> requests = new List<RequestViewModel>();
-    bool isLoading;
-
-    // Lifecycle Methods
-    protected override async Task OnInitializedAsync()
-    {
-        await GetRequests();
-    }
+    [Parameter] public string DonationType { get; set; }
+    decimal amount { get; set; } = 0.0M;
 
     // Private Methods
-    private async Task GetRequests()
+    private void Submit()
     {
-        try
-        {
-            var response = await requestsService.GetAll();
-
-            if (response == null)
-            {
-                snackbar.Add("Cannot get requests", Severity.Error);
-                return;
-            }
-            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
-            {
-                snackbar.Add(response.Message, Severity.Error);
-                return;
-            }
-            else
-            {
-                requests = response.Data;
-            }
-        }
-        catch(Exception)
-        {
-            snackbar.Add("An error occurred while getting requests", Severity.Error);
-        }
-    }
-
-    private async Task OnValidSubmit()
-    {
-        isLoading = true;
-        StateHasChanged();
-
-        try
-        {
-            var user = await browserStorageService.GetItem<UserViewModel>("user");
-
-            if (user == null)
-            {
-                snackbar.Add("User not logged in", Severity.Warning);
-                return;
-            }
-
-            var donation = new DonationViewModel
-            {
-                UserId = user.Id,
-                RequestId = model.RequestId,
-                Amount = model.Amount,
-                CreatedBy = user.Name
-            };
-
-            var response = await donationsService.Add(donation);
-
-            if (response == null)
-            {
-                isLoading = false;
-                alert.Message = "Cannot send request";
-                alert.AlertType = Severity.Error;
-                alert.IsVisible = true;
-                StateHasChanged();
-                return;
-            }
-            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
-            {
-                isLoading = false;
-                alert.Message = response.Message;
-                alert.AlertType = Severity.Error;
-                alert.IsVisible = true;
-                StateHasChanged();
-                return;
-            }
-            else
-            {
-                isLoading = false;
-                alert.Message = response.Message;
-                alert.AlertType = Severity.Success;
-                alert.IsVisible = true;
-                StateHasChanged();
-                return;
-            }
-        }
-        catch (Exception)
-        {
-            isLoading = false;
-            alert.Message = "An error occurred while send new donation";
-            alert.AlertType = Severity.Error;
-            alert.IsVisible = true;
-            StateHasChanged();
-            return;
-        }
+        navigationManager.NavigateTo($"/payment/{amount}");
     }
 
     private void GoBack()
     {
-        navigationManager.NavigateTo("/home");
+        navigationManager.NavigateTo("/donation-list");
     }
 }

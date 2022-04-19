@@ -26,7 +26,7 @@ builder.Services.AddCors(policy =>
 {
     policy.AddPolicy(origins, config => config
         .WithOrigins(
-            "http://localhost:3000", "https://localhost:3001",
+            "http://localhost:3000", "https://localhost:3001", "http://localhost:27472",
             "http://localhost:5000", "https://localhost:5001",
             "http://localhost:5000", "https://localhost:5001")
         .AllowAnyMethod()

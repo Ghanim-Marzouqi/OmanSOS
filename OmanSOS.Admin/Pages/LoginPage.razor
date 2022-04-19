@@ -77,7 +77,7 @@
 
             var response = await authService.Login(model.Email, model.Password);
 
-            if (response == null || response.Data == null)
+            if (response == null)
             {
                 alert.AlertType = Severity.Error;
                 alert.Message = "An error occured while logging in";
@@ -93,7 +93,7 @@
                 return;
             }
 
-            if (response.Data.UserTypeId == 1)
+            if (response.Data != null && response.Data.UserTypeId == 1)
             {
                 alert.AlertType = Severity.Warning;
                 alert.Message = "You're not allowed to use the system";

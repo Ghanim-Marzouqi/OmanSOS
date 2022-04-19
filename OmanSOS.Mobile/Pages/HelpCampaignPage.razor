@@ -1,0 +1,61 @@
+﻿@page "/help-campaign"
+@layout MainLayout
+@inject NavigationManager navigationManager
+
+<h3 class="mb-4">Help Campaign</h3>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.subtitle1">Title</MudText>
+        <MudText Typo="Typo.body1"><strong>Helping Those Who Affected By Shaheen Cyclon</strong></MudText>
+    </MudItem>
+    <MudItem xs="6">
+        <MudText Typo="Typo.subtitle1">Date</MudText>
+        <MudText Typo="Typo.body1"><strong>25 Apr 2022</strong></MudText>
+    </MudItem>
+    <MudItem xs="6">
+        <MudText Typo="Typo.subtitle1">Time</MudText>
+        <MudText Typo="Typo.body1"><strong>09:30 am</strong></MudText>
+    </MudItem>
+    <MudItem xs="12">
+        <MudText Typo="Typo.subtitle1">Description</MudText>
+        <MudText Typo="Typo.body1">
+            <strong>
+                This campaign is to help those poeple who got badly affected by Shaheen cyclon.
+                There will be a gathering in Saham wilayat on next Monday at 9:30 am to help cleaning their houses and give them food and first aid.
+                If you want to participate in this event, please press the below button.
+            </strong>
+        </MudText>  
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField 
+            T="string" 
+            @bind-Value="remarks" 
+            Label="Remarks"
+            Margin="Margin.Dense"
+            Class="my-6"
+            Variant="Variant.Outlined"
+            Lines="3"/>
+    </MudItem>
+</MudGrid>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3" OnClick="Submit">
+    Yes, I want to participate
+</MudButton>
+<MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
+    Go Back
+</MudButton>
+
+@code 
+{
+    // Properties
+    string remarks { get; set; } = string.Empty;
+
+    // Private Methods
+    private void Submit()
+    {}
+
+    private void GoBack()
+    {
+        navigationManager.NavigateTo("/donation-list");
+    }
+}

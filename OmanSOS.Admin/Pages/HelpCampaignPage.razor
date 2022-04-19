@@ -1,0 +1,54 @@
+﻿@page "/help-campaign"
+@layout MainLayout
+
+<PageTitle>Oman SOS | Help Campaign</PageTitle>
+
+<h3 class="mb-4">Help Campaign</h3>
+
+<MudPaper Class="pa-4" Style="@($"background-color: {Colors.Shades.White}")">
+    <MudGrid Spacing="2">
+        <MudItem xs="12">
+            <MudTextField 
+                T="string"
+                Value="title"
+                Label="Campaign Title" 
+                Class="my-2" 
+                Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudDatePicker 
+                @bind-Date="date"
+                Label="Campaign Date"
+                DateFormat="dd MMM yyyy"
+                Class="my-2" 
+                Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudTimePicker 
+                @bind-Time="time"
+                Label="Campaign Time" 
+                AmPm="true" 
+                Class="my-2" 
+                Variant="Variant.Outlined"/>
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField 
+                T="string"
+                Value="description"
+                Label="Email" 
+                Class="my-2" 
+                Variant="Variant.Outlined"
+                Lines="3"/>
+        </MudItem>
+        <MudItem>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary">Send</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    string title { get; set; } = string.Empty;
+    string description { get; set; } = string.Empty;
+    DateTime? date { get; set; } = DateTime.Today;
+    TimeSpan? time = new TimeSpan(00, 45, 00);
+}

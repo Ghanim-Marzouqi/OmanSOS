@@ -1,0 +1,82 @@
+﻿@page "/cloths-donation"
+@layout MainLayout
+@inject IMetadataService metadataService
+@inject ISnackbar snackbar
+@inject NavigationManager navigationManager
+
+<h3 class="mb-4">Cloths Donation</h3>
+
+<MudAutocomplete 
+    T="string" 
+    @bind-Value="location"
+    Label="Location"
+    Margin="Margin.Dense"
+    SearchFunc="@SearchLocation"
+    ResetValueOnEmptyText="true"
+    Variant="Variant.Outlined" />
+<MudTextField 
+    T="string" 
+    @bind-Value="remarks" 
+    Label="Remarks"
+    Margin="Margin.Dense"
+    Class="my-6"
+    Variant="Variant.Outlined"
+    Lines="3"/>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3" OnClick="Submit">
+    Donate
+</MudButton>
+<MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
+    Go Back
+</MudButton>
+
+@code 
+{
+    // Properties
+    string location { get; set; }
+    string remarks { get; set; } = string.Empty;
+    IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
+
+    // Private Methods
+    private async Task GetLocations()
+    {
+        try
+        {
+            var response = await metadataService.GetLocations();
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send request to get locations", Severity.Error);
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.OK || response.Data == null)
+            {
+                snackbar.Add(response.Message, Severity.Error);
+                return;
+            }
+            else
+            {
+                locations = response.Data;
+            }
+        }
+        catch(Exception)
+        {
+            snackbar.Add("An error occurred while getting locations", Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<string>> SearchLocation(string value)
+    {
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+            return await Task.Run(() => locations.Select(p => p.Name).ToList<string>());
+        return await Task.Run(() => locations.Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(p => p.Name).ToList<string>());
+    }
+
+    private void Submit()
+    {}
+
+    private void GoBack()
+    {
+        navigationManager.NavigateTo("/donation-list");
+    }
+}

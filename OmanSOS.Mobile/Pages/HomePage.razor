@@ -1,6 +1,5 @@
 ﻿@page "/home"
 @layout MainLayout
-@inject NavigationManager navigationManager
 
 <MudGrid Class="d-flex align-center" Style="margin-top: 150px">
     <MudItem xs="6" Class="d-flex justify-end">
@@ -12,7 +11,7 @@
         </MudLink> 
     </MudItem>
     <MudItem xs="6" Class="d-flex justify-start">
-        <MudLink Href="/make-donation">
+        <MudLink Href="/donation-list">
             <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
                 <img src="images/heart.png" width="65" height="65" class="mb-2" />
                 <strong>Make a donation</strong>

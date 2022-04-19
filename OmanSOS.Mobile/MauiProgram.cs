@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
-using MudBlazor;
+﻿using MudBlazor;
 using MudBlazor.Services;
 using OmanSOS.Mobile.Services;
 
@@ -17,14 +16,13 @@ public static class MauiProgram
         };
 
         builder
-            .RegisterBlazorMauiWebView()
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
-        builder.Services.AddBlazorWebView();
+        builder.Services.AddMauiBlazorWebView();
         builder.Services.AddOptions();
         builder.Services.AddScoped(_ => http);
         builder.Services.AddAuthorizationCore();

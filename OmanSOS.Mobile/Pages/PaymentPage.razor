@@ -1,0 +1,96 @@
+﻿@page "/payment/{Amount:decimal}"
+@using FluentValidation
+@layout MainLayout
+@inject NavigationManager navigationManager
+
+<h3 class="mb-4">Fill information in order to proceed payment</h3>
+
+<MudPaper Class="pa-4">
+    <MudForm>
+        <MudTextField 
+            Value="Amount" 
+            Label="Amount To Be Paid" 
+            Margin="Margin.Dense"
+            Class="my-6"
+            Variant="Variant.Outlined" />
+        <MudTextField 
+            Value="cardHolder" 
+            Label="Card Holder" 
+            Margin="Margin.Dense"
+            Class="my-6"
+            Variant="Variant.Outlined"/>
+        <MudTextField 
+            @bind-Value="creditCardNr" 
+            Validation="@ccValidator.Validation" 
+            Immediate="true" 
+            Label="Credit Card"
+            Margin="Margin.Dense"
+            Class="my-6"
+            Variant="Variant.Outlined"/>
+        <MudGrid Spacing="5">
+            <MudItem xs="6">
+                <MudTextField 
+                    Value="expiryDate" 
+                    Label="Expiry Date"
+                    Margin="Margin.Dense"
+                    Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField 
+                    Value="cvc" 
+                    Label="CVC" 
+                    Margin="Margin.Dense"
+                    Variant="Variant.Outlined"/>
+            </MudItem>
+        </MudGrid>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3" OnClick="Submit">
+            Pay
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="Cancel">
+            Cancel
+        </MudButton>
+    </MudForm>
+</MudPaper>
+
+@code {
+    [Parameter] public decimal Amount { get; set; }
+    string cardHolder = "Muzna";
+    string creditCardNr = "4012 8888 8888 1881";
+    string expiryDate = "10/26";
+    string cvc = "123";
+
+    // The validation rules (overkill, I know, but very fluent):
+    FluentValueValidator<string> ccValidator = new FluentValueValidator<string>(x => x
+        .NotEmpty()
+        .Length(1,100)
+        .CreditCard());
+
+    public class FluentValueValidator<T> : AbstractValidator<T>
+    {
+        public FluentValueValidator(Action<IRuleBuilderInitial<T, T>> rule)
+        {
+            rule(RuleFor(x => x));
+        }
+
+        private IEnumerable<string> ValidateValue(T arg)
+        {
+            var result = Validate(arg);
+            if (result.IsValid)
+                return new string[0];
+            return result.Errors.Select(e => e.ErrorMessage);
+        }
+
+        public Func<T, IEnumerable<string>> Validation => ValidateValue;
+    }
+
+    // Private Methods
+    private void Submit()
+    {
+        
+    }
+
+    private void Cancel()
+    {
+        navigationManager.NavigateTo("/home");
+    }
+}

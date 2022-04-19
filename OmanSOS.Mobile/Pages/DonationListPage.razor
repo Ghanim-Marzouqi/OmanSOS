@@ -1,0 +1,57 @@
+﻿@page "/donation-list"
+@layout MainLayout
+
+<MudGrid Class="d-flex align-center" Style="margin-top: 50px">
+    <MudItem xs="6" Class="d-flex justify-end">
+        <MudLink Href="/make-donation/Make donation for Corona Aid">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/covid19.png" width="65" height="65" class="mb-2" />
+                <strong>Corona Aid</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+    <MudItem xs="6" Class="d-flex justify-start">
+        <MudLink Href="/help-campaign">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/campaign.png" width="65" height="65" class="mb-2" />
+                <strong>Help Campaign</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+    <MudItem xs="6" Class="d-flex justify-end">
+        <MudLink Href="/make-donation/Pay your Zakat">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/zakat.png" width="65" height="65" class="mb-2" onclick="GoToAboutPage" />
+                <strong>Pay Your Zakah</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+     <MudItem xs="6" Class="d-flex justify-start">
+         <MudLink Href="/cloths-donation">
+             <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/clothes.png" width="65" height="65" class="mb-2" onclick="GoToRatingPage" />
+                <strong>Cloths Donations</strong>
+            </MudPaper>
+         </MudLink> 
+    </MudItem>
+    <MudItem xs="6" Class="d-flex justify-end">
+        <MudLink Href="/make-donation/Pay your Fasting Fidyah">
+            <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/moon.png" width="65" height="65" class="mb-2" onclick="GoToAboutPage" />
+                <strong>Fasting Fidyah</strong>
+            </MudPaper>
+        </MudLink> 
+    </MudItem>
+     <MudItem xs="6" Class="d-flex justify-start">
+         <MudLink Href="/make-donation/Make donation as a Sadaqa">
+             <MudPaper Height="150px" Width="150px" Class="d-flex flex-column justify-center align-center">
+                <img src="images/sadaqa.png" width="65" height="65" class="mb-2" onclick="GoToRatingPage" />
+                <strong>Sadaqa</strong>
+            </MudPaper>
+         </MudLink> 
+    </MudItem>
+</MudGrid>
+
+@code {
+
+}

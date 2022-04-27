@@ -1,12 +1,18 @@
-﻿@page "/payment/{Amount:decimal}"
+﻿@page "/payment/{CategoryId:int}/{Amount:decimal}"
 @using FluentValidation
 @layout MainLayout
 @inject NavigationManager navigationManager
+@inject IBrowserStorageService browserStorage
+@inject IDonationsService donationsService
 
 <h3 class="mb-4">Fill information in order to proceed payment</h3>
 
 <MudPaper Class="pa-4">
     <MudForm>
+        @if (alert.IsVisible)
+        {
+            <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+        }
         <MudTextField 
             Value="Amount" 
             Label="Amount To Be Paid" 
@@ -53,15 +59,30 @@
 </MudPaper>
 
 @code {
+    [Parameter] public int CategoryId { get; set; }
     [Parameter] public decimal Amount { get; set; }
-    string cardHolder = "Muzna";
+    private UserViewModel user { get; set; }
+    AlertModel alert = new();
+    string cardHolder { get; set; } = string.Empty;
     string creditCardNr = "4012 8888 8888 1881";
     string expiryDate = "10/26";
     string cvc = "123";
+    bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var loggedInUser = await browserStorage.GetItem<UserViewModel>("user");
+
+        if (loggedInUser != null)
+        {
+            user = loggedInUser;
+            cardHolder = user.Name;
+        }
+    }
 
     // The validation rules (overkill, I know, but very fluent):
     FluentValueValidator<string> ccValidator = new FluentValueValidator<string>(x => x
-        .NotEmpty()
+    .NotEmpty()
         .Length(1,100)
         .CreditCard());
 
@@ -84,9 +105,60 @@
     }
 
     // Private Methods
-    private void Submit()
+    private async Task Submit()
     {
-        
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var donation = new DonationViewModel
+            {
+                UserId = user.Id,
+                Amount = Amount,
+                CreatedBy = user.Name
+            };
+
+            var response = await donationsService.Add(donation);
+
+            if (response == null)
+            {
+                isLoading = false;
+                alert.Message = "Cannot send request";
+                alert.AlertType = MudBlazor.Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
+            {
+                isLoading = false;
+                alert.Message = response.Message;
+                alert.AlertType = MudBlazor.Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                isLoading = false;
+                alert.Message = "Thank you for your donation";
+                alert.AlertType = MudBlazor.Severity.Success;
+                alert.IsVisible = true;
+                StateHasChanged();
+                new Timeout(() => navigationManager.NavigateTo("/donation-list"), 2000);
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            isLoading = false;
+            alert.Message = "An error occurred while send new donation";
+            alert.AlertType = MudBlazor.Severity.Error;
+            alert.IsVisible = true;
+            StateHasChanged();
+            return;
+        }
     }
 
     private void Cancel()

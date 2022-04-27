@@ -1,8 +1,8 @@
-﻿@page "/make-donation/{DonationType}"
+﻿@page "/make-donation/{CategoryId:int}"
 @layout MainLayout
 @inject NavigationManager navigationManager
 
-<h3 class="mb-4">@(DonationType)</h3>
+<h3 class="mb-4">@(Title)</h3>
 
 <MudTextField 
     T="decimal" 
@@ -21,13 +21,34 @@
 @code 
 {
     // Properties
-    [Parameter] public string DonationType { get; set; }
+    [Parameter] public int CategoryId { get; set; }
+    string Title = string.Empty;
     decimal amount { get; set; } = 0.0M;
+
+    // Lifecycle Methods
+    protected override void OnInitialized()
+    {
+        switch (CategoryId)
+        {
+            case 4:
+                Title = "Make donation for Corona Aid";
+                break;
+            case 5:
+                Title = "Pay your Zakah";
+                break;
+            case 6:
+                Title = "Pay your Fasting Fidyah";
+                break;
+            case 7:
+                Title = "Make donation as a Sadaqa";
+                break;
+        }
+    }
 
     // Private Methods
     private void Submit()
     {
-        navigationManager.NavigateTo($"/payment/{amount}");
+        navigationManager.NavigateTo($"/payment/{CategoryId}/{amount}");
     }
 
     private void GoBack()

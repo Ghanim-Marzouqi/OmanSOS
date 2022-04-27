@@ -1,5 +1,6 @@
 ﻿@page "/help-campaign"
 @layout MainLayout
+@inject ISnackbar snackbar
 
 <PageTitle>Oman SOS | Help Campaign</PageTitle>
 
@@ -41,7 +42,7 @@
                 Lines="3"/>
         </MudItem>
         <MudItem>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary">Send</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Submit">Send</MudButton>
         </MudItem>
     </MudGrid>
 </MudPaper>
@@ -51,4 +52,9 @@
     string description { get; set; } = string.Empty;
     DateTime? date { get; set; } = DateTime.Today;
     TimeSpan? time = new TimeSpan(00, 45, 00);
+
+    private void Submit()
+    {
+        snackbar.Add("Help campaign updated successfully", Severity.Success);
+    }
 }

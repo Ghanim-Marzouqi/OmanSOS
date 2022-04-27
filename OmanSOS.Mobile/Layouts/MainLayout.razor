@@ -51,7 +51,7 @@
 
     private async void RequestUrgentHelp()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.Small };
+        var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.Small, DisableBackdropClick = true };
         var dialog = dialogService.Show<HelpDialog>("Urgent Help Request", options);
         var result = await dialog.Result;
 

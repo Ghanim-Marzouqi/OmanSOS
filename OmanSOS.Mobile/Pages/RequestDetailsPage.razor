@@ -20,12 +20,11 @@
     Class="my-4"
     ReadOnly="true"/>
 <MudTextField 
-    Value="requestDetails.CreatedAt" 
+    Value="@(requestDetails.CreatedAt?.ToString("dd MMM yyyy"))" 
     Label="Requested On" 
     Variant="Variant.Outlined"
     Class="my-4"
     ReadOnly="true"/>
-<img src="images/placeholder.jpg" alt="Request Image" class="mb-2" style="width: 100%; height: 250px" />
 <MudButton Variant="Variant.Text" Color="Color.Primary" Class="mb-4" FullWidth="true" OnClick="GoBack">Go Back</MudButton>
 
 @code {

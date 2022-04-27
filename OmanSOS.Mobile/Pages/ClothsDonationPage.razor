@@ -1,11 +1,17 @@
 ﻿@page "/cloths-donation"
 @layout MainLayout
 @inject IMetadataService metadataService
+@inject IDonationsService donationsService
 @inject ISnackbar snackbar
 @inject NavigationManager navigationManager
+@inject IBrowserStorageService browserStorage
 
 <h3 class="mb-4">Cloths Donation</h3>
 
+@if (alert.IsVisible)
+{
+    <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+}
 <MudAutocomplete 
     T="string" 
     @bind-Value="location"
@@ -35,6 +41,19 @@
     string location { get; set; }
     string remarks { get; set; } = string.Empty;
     IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
+    private UserViewModel user { get; set; }
+    AlertModel alert = new();
+    bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var loggedInUser = await browserStorage.GetItem<UserViewModel>("user");
+
+        if (loggedInUser != null)
+        {
+            user = loggedInUser;
+        }
+    }
 
     // Private Methods
     private async Task GetLocations()
@@ -72,8 +91,61 @@
         return await Task.Run(() => locations.Where(p => p.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).Select(p => p.Name).ToList<string>());
     }
 
-    private void Submit()
-    {}
+    private async Task Submit()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var donation = new DonationViewModel
+            {
+                UserId = user.Id,
+                Amount = 0,
+                CreatedBy = user.Name
+            };
+
+            var response = await donationsService.Add(donation);
+
+            if (response == null)
+            {
+                isLoading = false;
+                alert.Message = "Cannot send request";
+                alert.AlertType = MudBlazor.Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else if (response.StatusCode != HttpStatusCode.Created || response?.Data == null)
+            {
+                isLoading = false;
+                alert.Message = response.Message;
+                alert.AlertType = MudBlazor.Severity.Error;
+                alert.IsVisible = true;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                isLoading = false;
+                alert.Message = "Thank you for your donation";
+                alert.AlertType = MudBlazor.Severity.Success;
+                alert.IsVisible = true;
+                StateHasChanged();
+                new Timeout(() => navigationManager.NavigateTo("/donation-list"), 2000);
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            isLoading = false;
+            alert.Message = "An error occurred while send new donation";
+            alert.AlertType = MudBlazor.Severity.Error;
+            alert.IsVisible = true;
+            StateHasChanged();
+            return;
+        }
+    }
 
     private void GoBack()
     {

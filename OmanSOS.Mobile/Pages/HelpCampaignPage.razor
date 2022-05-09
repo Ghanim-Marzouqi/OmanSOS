@@ -1,5 +1,7 @@
 ﻿@page "/help-campaign"
 @layout MainLayout
+@inject IDonationsService donationService
+@inject ISnackbar snackbar
 @inject NavigationManager navigationManager
 
 <h3 class="mb-4">Help Campaign</h3>
@@ -7,23 +9,21 @@
 <MudGrid>
     <MudItem xs="12">
         <MudText Typo="Typo.subtitle1">Title</MudText>
-        <MudText Typo="Typo.body1"><strong>Helping Those Who Affected By Shaheen Cyclon</strong></MudText>
+        <MudText Typo="Typo.body1"><strong>@campaign.Title</strong></MudText>
     </MudItem>
     <MudItem xs="6">
         <MudText Typo="Typo.subtitle1">Date</MudText>
-        <MudText Typo="Typo.body1"><strong>25 Apr 2022</strong></MudText>
+        <MudText Typo="Typo.body1"><strong>@campaign.CampaignDate.ToString("dd MMM yyyy")</strong></MudText>
     </MudItem>
     <MudItem xs="6">
         <MudText Typo="Typo.subtitle1">Time</MudText>
-        <MudText Typo="Typo.body1"><strong>09:30 am</strong></MudText>
+        <MudText Typo="Typo.body1"><strong>@campaign.CampaignTime</strong></MudText>
     </MudItem>
     <MudItem xs="12">
         <MudText Typo="Typo.subtitle1">Description</MudText>
         <MudText Typo="Typo.body1">
             <strong>
-                This campaign is to help those poeple who got badly affected by Shaheen cyclon.
-                There will be a gathering in Saham wilayat on next Monday at 9:30 am to help cleaning their houses and give them food and first aid.
-                If you want to participate in this event, please press the below button.
+                @campaign.Remarks
             </strong>
         </MudText>  
     </MudItem>
@@ -48,7 +48,34 @@
 @code 
 {
     // Properties
+    CampaignViewModel campaign = new();
     string remarks { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCampagin();
+    }
+
+    private async Task GetCampagin()
+    {
+        try
+        {
+            var response = await donationService.GetCampaign();
+
+            if (response != null && response.Data != null)
+            {
+                campaign = response.Data;
+            }
+            else
+            {
+                snackbar.Add("Cannot get campaign", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
 
     // Private Methods
     private void Submit()

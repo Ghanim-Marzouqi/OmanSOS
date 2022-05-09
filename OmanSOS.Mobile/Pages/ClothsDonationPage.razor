@@ -8,40 +8,44 @@
 
 <h3 class="mb-4">Cloths Donation</h3>
 
-@if (alert.IsVisible)
-{
-    <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
-}
-<MudAutocomplete 
-    T="string" 
-    @bind-Value="location"
-    Label="Location"
-    Margin="Margin.Dense"
-    SearchFunc="@SearchLocation"
-    ResetValueOnEmptyText="true"
-    Variant="Variant.Outlined" />
-<MudTextField 
-    T="string" 
-    @bind-Value="remarks" 
-    Label="Remarks"
-    Margin="Margin.Dense"
-    Class="my-6"
-    Variant="Variant.Outlined"
-    Lines="3"/>
-<MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3" OnClick="Submit">
-    Donate
-</MudButton>
-<MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
-    Go Back
-</MudButton>
+<EditForm Model="@model" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    @if (alert.IsVisible)
+    {
+        <MudAlert Severity="alert.AlertType">@(alert.Message)</MudAlert>
+    }
+    <MudAutocomplete 
+        T="string" 
+        @bind-Value="@model.Location"
+        For="() => model.Location"
+        Label="Location"
+        Margin="Margin.Dense"
+        SearchFunc="@SearchLocation"
+        ResetValueOnEmptyText="true"
+        Variant="Variant.Outlined"/>
+    <MudTextField 
+        T="string" 
+        @bind-Value="@model.Remarks"
+        For="() => model.Remarks"
+        Label="Remarks"
+        Margin="Margin.Dense"
+        Class="my-6"
+        Variant="Variant.Outlined"
+        Lines="3"/>
+    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Class="my-3">
+        Donate
+    </MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="GoBack">
+        Go Back
+    </MudButton>
+</EditForm>
 
 @code 
 {
     // Properties
-    string location { get; set; }
-    string remarks { get; set; } = string.Empty;
     IEnumerable<LocationViewModel> locations = new List<LocationViewModel>();
     private UserViewModel user { get; set; }
+    private ClothDonationModel model = new();
     AlertModel alert = new();
     bool isLoading;
 
@@ -53,6 +57,8 @@
         {
             user = loggedInUser;
         }
+
+        await GetLocations();
     }
 
     // Private Methods
@@ -101,7 +107,9 @@
             var donation = new DonationViewModel
             {
                 UserId = user.Id,
+                LocationId = locations.First(p => p.Name == model.Location).Id,
                 Amount = 0,
+                Remarks = model.Remarks,
                 CreatedBy = user.Name
             };
 

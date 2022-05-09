@@ -1,60 +1,113 @@
 ﻿@page "/help-campaign"
 @layout MainLayout
+@inject IDonationsService donationService
+@inject IBrowserStorageService browserStorageService
 @inject ISnackbar snackbar
 
 <PageTitle>Oman SOS | Help Campaign</PageTitle>
 
 <h3 class="mb-4">Help Campaign</h3>
 
-<MudPaper Class="pa-4" Style="@($"background-color: {Colors.Shades.White}")">
-    <MudGrid Spacing="2">
-        <MudItem xs="12">
-            <MudTextField 
-                T="string"
-                Value="title"
-                Label="Campaign Title" 
-                Class="my-2" 
-                Variant="Variant.Outlined" />
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudDatePicker 
-                @bind-Date="date"
-                Label="Campaign Date"
-                DateFormat="dd MMM yyyy"
-                Class="my-2" 
-                Variant="Variant.Outlined"/>
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudTimePicker 
-                @bind-Time="time"
-                Label="Campaign Time" 
-                AmPm="true" 
-                Class="my-2" 
-                Variant="Variant.Outlined"/>
-        </MudItem>
-        <MudItem xs="12">
-            <MudTextField 
-                T="string"
-                Value="description"
-                Label="Email" 
-                Class="my-2" 
-                Variant="Variant.Outlined"
-                Lines="3"/>
-        </MudItem>
-        <MudItem>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Submit">Send</MudButton>
-        </MudItem>
-    </MudGrid>
-</MudPaper>
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudPaper Class="pa-4" Style="@($"background-color: {Colors.Shades.White}")">
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField 
+                    T="string" 
+                    @bind-Value="@model.Title" 
+                    For="@(() => model.Title)" 
+                    Label="Campaign Title" 
+                    Class="my-2" 
+                    Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudDatePicker 
+                    @bind-Date="@model.CampaignDate" 
+                    For="@(() => model.CampaignDate)"
+                    Label="Campaign Date"
+                    Class="my-2" 
+                    Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTimePicker 
+                    @bind-Time="@model.CampaignTime" 
+                    For="@(() => model.CampaignTime)"
+                    Label="Campaign Time" 
+                    AmPm="true" 
+                    Class="my-2" 
+                    Variant="Variant.Outlined"/>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField 
+                    T="string"
+                    @bind-Value="@model.Remarks" 
+                    For="@(() => model.Remarks)"
+                    Label="Remarks" 
+                    Class="my-2" 
+                    Variant="Variant.Outlined"
+                    Lines="3"/>
+            </MudItem>
+            <MudItem>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Send</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</EditForm>
 
 @code {
-    string title { get; set; } = string.Empty;
-    string description { get; set; } = string.Empty;
-    DateTime? date { get; set; } = DateTime.Today;
-    TimeSpan? time = new TimeSpan(00, 45, 00);
+    DateTime? date = DateTime.Today;
+    UserViewModel user = new();
+    AddCampaignModel model = new();
+    bool isLoading;
 
-    private void Submit()
+    protected override async Task OnInitializedAsync()
     {
-        snackbar.Add("Help campaign updated successfully", Severity.Success);
+        var user = await browserStorageService.GetItem<UserViewModel>("user");
+
+        if (user == null)
+        {
+            snackbar.Add("User not logged in", Severity.Warning);
+            return;
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await donationService.AddCampaign(new CampaignViewModel
+            {
+                Title = model.Title,
+                CampaignDate = model.CampaignDate.HasValue ? model.CampaignDate.Value : DateTime.Now,
+                CampaignTime = model.CampaignTime.HasValue ? model.CampaignTime.Value.ToString() : "",
+                Remarks = model.Remarks,
+                CreatedBy = user.Name
+            });
+
+            if (response == null)
+            {
+                snackbar.Add("Cannot send campaign request", Severity.Error);
+                return;
+            }
+            else
+            {
+                snackbar.Add(response.Message, Severity.Success);
+                return;
+            }
+        }
+        catch (Exception)
+        {
+            snackbar.Add("Error has occurred while adding new campaign", Severity.Error);
+            return;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 }

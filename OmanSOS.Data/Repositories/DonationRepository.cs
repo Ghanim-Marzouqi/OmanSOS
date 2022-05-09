@@ -20,7 +20,7 @@ public class DonationRepository : BaseRepository, IDonationRepository
             await connection.ExecuteAsync("UPDATE Requests SET IsClosed = 1 WHERE Id = @Id", new { Id = entity.RequestId });
 
         entity.CreatedAt = DateTime.Now;
-        const string? sql = "INSERT INTO Donations (UserId, RequestId, Amount, CreatedBy, CreatedAt) Values (@UserId, @RequestId, @Amount, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int)";
+        const string? sql = "INSERT INTO Donations (UserId, RequestId, LocationId, Amount, Remarks, CreatedBy, CreatedAt) Values (@UserId, @RequestId, @LocationId, @Amount, @Remarks, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int)";
         var insertedId = await connection.ExecuteScalarAsync<int>(sql, entity);
         return insertedId;
     }
@@ -65,7 +65,7 @@ public class DonationRepository : BaseRepository, IDonationRepository
     {
         entity.Id = id;
         entity.UpdatedAt = DateTime.Now;
-        const string? sql = "UPDATE Donations SET UserTypeId = @UserTypeId, RequestId = @RequestId, Amount = @Amount, IsActive = @IsActive, UpdatedBy = @UpdatedBy, UpdatedAt = @UpdatedAt WHERE Id = @Id";
+        const string? sql = "UPDATE Donations SET UserTypeId = @UserTypeId, RequestId = @RequestId, LocationId = @LocationId, Amount = @Amount, Remarks = @Remarks, IsActive = @IsActive, UpdatedBy = @UpdatedBy, UpdatedAt = @UpdatedAt WHERE Id = @Id";
         await using var connection = GetConnection();
         connection.Open();
         var result = await connection.ExecuteAsync(sql, entity);
@@ -79,5 +79,24 @@ public class DonationRepository : BaseRepository, IDonationRepository
         connection.Open();
         var result = await connection.QueryAsync<Donation>(sql, new { UserId = userId });
         return result == null ? new List<Donation>() : result.ToList();
+    }
+
+    public async Task<int> AddCampaign(Campaign campaign)
+    {
+        campaign.CreatedAt = DateTime.Now;
+        const string? sql = "INSERT INTO Campaigns (Title, CampaignDate, CampaignTime, Remarks, CreatedBy, CreatedAt) Values (@Title, @CampaignDate, @CampaignTime, @Remarks, @CreatedBy, @CreatedAt); SELECT CAST(SCOPE_IDENTITY() as int)";
+        await using var connection = GetConnection();
+        connection.Open();
+        var insertedId = await connection.ExecuteScalarAsync<int>(sql, campaign);
+        return insertedId;
+    }
+
+    public async Task<IEnumerable<Campaign>> GetCampaigns()
+    {
+        const string? sql = "SELECT * FROM Campaigns ORDER BY Id DESC";
+        await using var connection = GetConnection();
+        connection.Open();
+        var result = await connection.QueryAsync<Campaign>(sql);
+        return result == null ? new List<Campaign>() : result.ToList();
     }
 }

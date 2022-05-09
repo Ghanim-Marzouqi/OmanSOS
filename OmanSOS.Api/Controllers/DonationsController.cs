@@ -98,7 +98,13 @@ public class DonationsController : ControllerBase
                     {
                         var requestResult = await _unitOfWork.Requests.GetByIdAsync(donation.RequestId);
                         donations.Where(p => p.Id == donation.Id).First().Request = _mapper.Map<RequestViewModel>(requestResult);
-                    }      
+                    }
+                    
+                    if (donation.LocationId != 0)
+                    {
+                        var locationResult = await _unitOfWork.Locations.GetByIdAsync(donation.LocationId);
+                        donations.Where(p => p.Id == donation.Id).First().Location = _mapper.Map<LocationViewModel>(locationResult);
+                    }
                 }
             }
 
@@ -220,6 +226,85 @@ public class DonationsController : ControllerBase
                 StatusCode = HttpStatusCode.NotFound,
                 Message = "An error occured while deleting donation",
                 Data = false,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
+
+    [HttpPost("AddCampaign")]
+    public async Task<IActionResult> AddCampaign(CampaignViewModel campaignViewModel) {
+
+        if (campaignViewModel == null)
+        {
+            return BadRequest(new ResponseViewModel<bool>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Data sent incomplete",
+                Data = false
+            });
+        }
+
+        try
+        {
+            var campaign = _mapper.Map<Campaign>(campaignViewModel);
+
+            var insertedId = await _unitOfWork.Donations.AddCampaign(campaign);
+
+            if (insertedId > 0)
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.Created,
+                    Message = "Campaign has been added successfully",
+                    Data = true
+                });
+            }
+            else
+            {
+                return Ok(new ResponseViewModel<bool>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Cannot add campaign",
+                    Data = true
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            return NotFound(new ResponseViewModel<bool>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occurred while adding a new campaign",
+                Data = false,
+                ErrorMessage = e.Message,
+                ErrorStackTrace = e.StackTrace
+            });
+        }
+    }
+
+    [HttpGet("GetCampaign")]
+    public async Task<IActionResult> GetCampaign()
+    {
+        try
+        {
+            var campaignsResult = await _unitOfWork.Donations.GetCampaigns();
+            var campaigns = _mapper.Map<IEnumerable<CampaignViewModel>>(campaignsResult);
+
+            var response = new ResponseViewModel<CampaignViewModel>
+            {
+                Data = campaigns.First()
+            };
+
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            return NotFound(new ResponseViewModel<CampaignViewModel>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "An error occurred while fetching campaign",
+                Data = null,
                 ErrorMessage = e.Message,
                 ErrorStackTrace = e.StackTrace
             });

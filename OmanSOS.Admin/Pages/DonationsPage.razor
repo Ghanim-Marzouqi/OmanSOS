@@ -14,6 +14,8 @@
         <MudTh>Donor</MudTh>
         <MudTh>Amount</MudTh>
         <MudTh>Request</MudTh>
+        <MudTh>Location</MudTh>
+        <MudTh>Remarks</MudTh>
         <MudTh>Donation Date</MudTh>
         <MudTh>Delete</MudTh>
     </HeaderContent>
@@ -21,6 +23,8 @@
         <MudTd DataLabel="Donor">@context.User?.Name</MudTd>
         <MudTd DataLabel="Amount">OMR @context.Amount</MudTd>
         <MudTd DataLabel="Request">@(GetRelatedRequestDescription(context.Request))</MudTd>
+        <MudTd DataLabel="Location">@context.Location?.Name</MudTd>
+        <MudTd DataLabel="Remarks">@context.Remarks</MudTd>
         <MudTd DataLabel="Request Date">@context.CreatedAt</MudTd>
         <MudTd DataLabel="Delete">
             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" aria-label="delete" OnClick="() => OnDeleteDonationClicked(context.Id)"/>

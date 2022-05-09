@@ -10,6 +10,8 @@ public interface IDonationsService
     Task<ResponseViewModel<DonationViewModel>?> GetById(int id);
 
     Task<ResponseViewModel<bool>?> Delete(int donationId);
+
+    Task<ResponseViewModel<bool>?> AddCampaign(CampaignViewModel campaignViewModel);
 }
 
 public class DonationsService : BaseService, IDonationsService
@@ -40,5 +42,12 @@ public class DonationsService : BaseService, IDonationsService
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
         var response = await _http.DeleteAsync($"{_baseUrl}/Delete/{donationId}");
         return await response.Content.ReadFromJsonAsync<ResponseViewModel<bool>?>();
+    }
+
+    public async Task<ResponseViewModel<bool>?> AddCampaign(CampaignViewModel campaignViewModel)
+    {
+        _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
+        var response = await _http.PostAsJsonAsync($"{_baseUrl}/AddCampaign", campaignViewModel);
+        return await response.Content.ReadFromJsonAsync<ResponseViewModel<bool>>();
     }
 }

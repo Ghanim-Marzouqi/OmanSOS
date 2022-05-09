@@ -15,5 +15,6 @@ public class MappingService : Profile
         CreateMap<Priority, PriorityViewModel>().ReverseMap();
         CreateMap<User, UserViewModel>().ReverseMap();
         CreateMap<UserType, UserTypeViewModel>().ReverseMap();
+        CreateMap<Campaign, CampaignViewModel>().ReverseMap();
     }
 }

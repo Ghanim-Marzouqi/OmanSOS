@@ -12,6 +12,8 @@ public interface IDonationsService
     Task<ResponseViewModel<DonationViewModel>> GetById(int id);
 
     Task<ResponseViewModel<IEnumerable<DonationViewModel>>> GetDonationsByUserId(int userId);
+
+    Task<ResponseViewModel<CampaignViewModel>> GetCampaign();
 }
 
 public class DonationsService : BaseService, IDonationsService
@@ -44,9 +46,17 @@ public class DonationsService : BaseService, IDonationsService
         return await _http.GetFromJsonAsync<ResponseViewModel<DonationViewModel>>($"{_baseUrl}/GetById/{id}");
     }
 
+    public async Task<ResponseViewModel<CampaignViewModel>> GetCampaign()
+    {
+        _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
+        return await _http.GetFromJsonAsync<ResponseViewModel<CampaignViewModel>>($"{_baseUrl}/GetCampaign");
+    }
+
     public async Task<ResponseViewModel<IEnumerable<DonationViewModel>>> GetDonationsByUserId(int userId)
     {
         _http.DefaultRequestHeaders.Authorization = await GetAuthorizationHeader();
         return await _http.GetFromJsonAsync<ResponseViewModel<IEnumerable<DonationViewModel>>>($"{_baseUrl}/GetDonationsByUserId/{userId}");
     }
+
+
 }

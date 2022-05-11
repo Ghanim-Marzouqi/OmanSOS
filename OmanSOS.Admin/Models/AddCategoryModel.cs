@@ -9,4 +9,6 @@ public class AddCategoryModel
 
     [Required(ErrorMessage = "Please enter category")]
     public string Name { get; set; } = string.Empty;
+
+    public bool IsEmergency { get; set; }
 }

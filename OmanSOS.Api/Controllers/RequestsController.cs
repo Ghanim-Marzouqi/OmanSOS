@@ -38,17 +38,17 @@ public class RequestsController : ControllerBase
         try
         {
             // 1. Check if request is available in database
-            var isOpenRequestExisted = await _unitOfWork.Requests.IsOpenRequestExisted(requestViewModel.UserId);
+            //var isOpenRequestExisted = await _unitOfWork.Requests.IsOpenRequestExisted(requestViewModel.UserId);
 
-            if (isOpenRequestExisted)
-            {
-                return BadRequest(new ResponseViewModel<bool>
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "You cannot send another request",
-                    Data = false
-                });
-            }
+            //if (isOpenRequestExisted && !requestViewModel.IsEmergency)
+            //{
+            //    return BadRequest(new ResponseViewModel<bool>
+            //    {
+            //        StatusCode = HttpStatusCode.NotFound,
+            //        Message = "You cannot send another request",
+            //        Data = false
+            //    });
+            //}
 
             var request = _mapper.Map<Request>(requestViewModel);
 

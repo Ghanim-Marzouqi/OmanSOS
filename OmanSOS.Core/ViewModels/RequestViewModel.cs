@@ -8,6 +8,7 @@ public class RequestViewModel : BaseViewModel
     public int PriorityId { get; set; }
     public int UserId { get; set; }
     public string Description { get; set; } = string.Empty;
+    public bool IsEmergency { get; set; }
 
     // Navigation Properties
     public CategoryViewModel? Category { get; set; }

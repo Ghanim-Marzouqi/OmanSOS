@@ -79,7 +79,11 @@
 
     // Private Methods
     private void Submit()
-    {}
+    {
+        snackbar.Add("Thank you for your participation", Severity.Success);
+        StateHasChanged();
+        new Timeout(() => navigationManager.NavigateTo("/donation-list"), 2000);
+    }
 
     private void GoBack()
     {

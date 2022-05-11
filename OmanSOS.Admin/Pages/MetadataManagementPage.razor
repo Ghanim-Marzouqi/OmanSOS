@@ -18,11 +18,22 @@
     <HeaderContent>
         <MudTh>ID</MudTh>
         <MudTh>Name</MudTh>
+        <MudTh>Is Emergency</MudTh>
         <MudTh>Delete</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.Id</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Is Emergency">
+            @if (context.IsEmergency)
+            {
+                @("Yes")
+            }
+            else
+            {
+                @("No")
+            }
+        </MudTd>
         <MudTd DataLabel="Delete">
             <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" OnClick="() => OnDeleteCategoryClicked(context.Id)" />
         </MudTd>

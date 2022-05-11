@@ -81,7 +81,8 @@
             }
             else
             {
-                categories = response.Data;
+                var emergencyCategories = response.Data.Where(p => p.IsEmergency == true).ToList();
+                categories = emergencyCategories;
             }
         }
         catch(Exception)
@@ -147,6 +148,7 @@
                 LocationId = locations.First(p => p.Name == model.Location).Id,
                 UserId = user.Id,
                 Description = model.Description,
+                IsEmergency = true,
                 CreatedBy = user.Name
             };
 

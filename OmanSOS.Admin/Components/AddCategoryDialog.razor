@@ -25,6 +25,12 @@
                 Label="Category" 
                 Class="my-6" 
                 Variant="Variant.Outlined" />
+            <MudCheckBox 
+                @bind-Checked="@model.IsEmergency"
+                For="@(() => model.IsEmergency)"
+                Color="Color.Primary">
+                Is Emergency
+            </MudCheckBox>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -83,6 +89,7 @@
             {
                 Id = model.Id,
                 Name = model.Name,
+                IsEmergency = model.IsEmergency,
                 CreatedBy = user.Name
             });
 

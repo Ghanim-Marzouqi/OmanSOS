@@ -6,3 +6,6 @@ ADD LocationId INT NULL;
 
 ALTER TABLE OmanSOS.dbo.Donations 
 ADD Remarks VARCHAR (2000) NULL;
+
+ALTER TABLE OmanSOS.dbo.Categories
+ADD IsEmergency BIT NOT NULL DEFAULT 0;

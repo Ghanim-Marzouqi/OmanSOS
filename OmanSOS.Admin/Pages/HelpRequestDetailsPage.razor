@@ -2,6 +2,7 @@
 @layout MainLayout
 @inject IRequestsService requestsService
 @inject ISnackbar snackbar
+@inject HttpClient http
 @inject NavigationManager navigationManager
 
 <PageTitle>Oman SOS | Request Details</PageTitle>
@@ -24,7 +25,7 @@
     <MudGrid Justify="Justify.Center">
         <MudItem xs="12" sm="6" Class="pa-4">
             <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Category: <span style="color: black">@requestDetails.Category?.Name</span></strong></MudText>
-            <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Priority: <span style="@(GetPriorityStyle(requestDetails.Priority?.Id))">@requestDetails.Priority?.Name</span></strong></MudText>
+            <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Priority: <span style="@(GetPriorityStyle(requestDetails.Priority?.Id))">requestDetails.Priority?.Name</span></strong></MudText>
             <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Location: <span style="color: black">@requestDetails.Location</span></strong></MudText>
             <MudText Typo="Typo.subtitle1" Color="Color.Info" Class="py-2"><strong>Description:</strong></MudText>
             <MudText Typo="Typo.subtitle2">@requestDetails.Description</MudText>
@@ -32,7 +33,14 @@
         <MudItem xs="12" sm="6" Class="d-flex justify-end pr-8">
             <img src="images/placeholder.jpg" alt="Request" width="300" height="300" />
         </MudItem>
-</MudGrid>
+    </MudGrid>
+    <MudTextField 
+        T="string" 
+        @bind-Value="@description" 
+        Label="Help Description" 
+        Variant="Variant.Outlined" 
+        Lines="3"/>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="my-4" OnClick="SendHelp">Send</MudButton>
 </MudPaper>
 
 @code {
@@ -44,6 +52,7 @@
         new BreadcrumbItem("Help Requests", href: "/help-requests"),
         new BreadcrumbItem("Request Details", href: null, disabled: true)
     };
+    private string description { get; set; } = string.Empty;
 
     // Lifecycle Methods
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -111,6 +120,26 @@
                 return "color: red";
             default:
                 return "color: black";
+        }
+    }
+
+    private async Task SendHelp() {
+        try {
+            await http.PostAsJsonAsync("https://us-central1-al-ferdoos-center.cloudfunctions.net/app/send-email", new
+            {
+                name = requestDetails.User?.Name,
+                email = requestDetails.User?.Email,
+                phone = requestDetails.User?.Phone,
+                category = requestDetails.Category?.Name,
+                priority = requestDetails.Priority?.Name,
+                location = requestDetails.Location,
+                description = description
+            });
+
+            snackbar.Add("Help details sent successfully", Severity.Success);
+        }
+        catch (Exception) {
+            snackbar.Add("Help details sent successfully", Severity.Error);
         }
     }
 }
